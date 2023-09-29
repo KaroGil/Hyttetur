@@ -1,0 +1,25 @@
+main_character_moment.png
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+running
+  rotate: false
+  xy: 0, 0
+  size: 256, 256
+  orig: 0, 0
+  offset: 0, 0
+  index: 0
+running
+  rotate: false
+  xy: 256, 0
+  size: 256, 256
+  orig: 80, 120
+  offset: 0, 0
+  index: 1
+running
+  rotate: false
+  xy: 512, 0
+  size: 256, 256
+  orig: 80, 120
+  offset: 0, 0
+  index: 2
