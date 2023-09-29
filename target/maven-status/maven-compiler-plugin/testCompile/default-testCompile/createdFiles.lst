@@ -1,0 +1,13 @@
+inf112\skeleton\app\projectile\ProjectileTest.class
+inf112\skeleton\app\ui\LevelHudTest.class
+inf112\skeleton\app\ui\PowerTest.class
+inf112\skeleton\app\projectile\EffectTest.class
+inf112\skeleton\app\MainTest.class
+inf112\skeleton\app\player\DefaultEnemyTest.class
+inf112\skeleton\app\projectile\AreaOfEffectTest.class
+inf112\skeleton\app\player\EntityTest.class
+inf112\skeleton\app\player\PlayerTest.class
+inf112\skeleton\app\screens\HytteturTest.class
+inf112\skeleton\app\map\MapHandlerTest.class
+inf112\skeleton\app\ui\HudTest.class
+com\badlogic\gdx\backends\lwjgl3\TestApp.class

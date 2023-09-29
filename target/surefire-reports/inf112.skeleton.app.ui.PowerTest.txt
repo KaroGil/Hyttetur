@@ -1,0 +1,4 @@
+-------------------------------------------------------------------------------
+Test set: inf112.skeleton.app.ui.PowerTest
+-------------------------------------------------------------------------------
+Tests run: 7, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 3.188 s - in inf112.skeleton.app.ui.PowerTest
