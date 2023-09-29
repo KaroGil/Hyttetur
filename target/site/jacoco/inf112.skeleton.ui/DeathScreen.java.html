@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DeathScreen.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">hyttetur</a> &gt; <a href="index.source.html" class="el_package">inf112.skeleton.ui</a> &gt; <span class="el_source">DeathScreen.java</span></div><h1>DeathScreen.java</h1><pre class="source lang-java linenums">package inf112.skeleton.ui;
+
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.audio.Sound;
+import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import com.badlogic.gdx.utils.viewport.FitViewport;
+import com.badlogic.gdx.utils.viewport.Viewport;
+import inf112.skeleton.screens.GameScreen;
+
+public class DeathScreen {
+    public Stage stage;
+    private Label youDiedLabel;
+
+    private float scale;
+
+    private Table table;
+
+    private Viewport viewport;
+
+    private Label.LabelStyle fontStyle;
+
+<span class="fc" id="L28">    public DeathScreen(SpriteBatch sb) {</span>
+<span class="fc" id="L29">        scale = 4;</span>
+<span class="fc" id="L30">        viewport = new FitViewport(GameScreen.S_WIDTH, GameScreen.S_HEIGHT, new OrthographicCamera());</span>
+<span class="fc" id="L31">        stage = new Stage(viewport, sb);</span>
+
+<span class="fc" id="L33">        table = new Table();</span>
+<span class="fc" id="L34">        table.center();</span>
+<span class="fc" id="L35">        table.setFillParent(true);</span>
+<span class="fc" id="L36">        table.setDebug(false);</span>
+
+<span class="fc" id="L38">        fontStyle = new Label.LabelStyle(new BitmapFont(), new Color(Color.RED));</span>
+<span class="fc" id="L39">        fontStyle.font.getData().setScale(scale);</span>
+<span class="fc" id="L40">        youDiedLabel = new Label(&quot;YOU DIED&quot;, new Label.LabelStyle(fontStyle));</span>
+
+<span class="fc" id="L42">        table.add(youDiedLabel);</span>
+
+<span class="fc" id="L44">        stage.addActor(table);</span>
+<span class="fc" id="L45">    }</span>
+
+    public void update() {
+<span class="nc" id="L48">        fontStyle.font.getData().setScale(scale += 0.1);</span>
+<span class="nc" id="L49">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

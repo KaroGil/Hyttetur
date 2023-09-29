@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Power.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">hyttetur</a> &gt; <a href="index.source.html" class="el_package">inf112.skeleton.ui</a> &gt; <span class="el_source">Power.java</span></div><h1>Power.java</h1><pre class="source lang-java linenums">package inf112.skeleton.ui;
+
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.scenes.scene2d.ui.Image;
+
+
+public class Power {
+    private String name;
+    private String description;
+    private int level;
+    private int rarity;
+    private Image picture;
+
+
+<span class="fc" id="L15">    public Power(String name, String description, int level, Image picture, int rarity) {</span>
+<span class="fc" id="L16">        this.name = name;</span>
+<span class="fc" id="L17">        this.description = description;</span>
+<span class="fc" id="L18">        this.level = level;</span>
+<span class="fc" id="L19">        this.picture = picture;</span>
+<span class="fc" id="L20">        this.rarity = rarity;</span>
+<span class="fc" id="L21">    }</span>
+
+
+    /**
+     * Making default powers / power ups
+     */
+
+    public static Power ATTACK_SPEED(int level) {
+<span class="fc" id="L29">        String name = &quot;Syringe&quot;;</span>
+<span class="fc" id="L30">        String desc = &quot;Increases attack speed of your regular fire&quot;;</span>
+<span class="fc" id="L31">        Image image = new Image(new Texture(&quot;assets/hud/attack_speed_power.png&quot;));</span>
+<span class="fc" id="L32">        int rarity = 0;</span>
+
+<span class="fc" id="L34">        return new Power(name, desc, level, image,rarity);</span>
+    }
+
+    public static Power ATTACK_DAMAGE(int level) {
+<span class="fc" id="L38">        String name = &quot;Shattering&quot;;</span>
+<span class="fc" id="L39">        String desc = &quot;Slightly increases all damage&quot;;</span>
+<span class="fc" id="L40">        Image image = new Image(new Texture(&quot;assets/hud/attack_damage_power.png&quot;));</span>
+<span class="fc" id="L41">        int rarity = 0;</span>
+
+<span class="fc" id="L43">        return new Power(name, desc, level, image, rarity);</span>
+    }
+
+    public static Power FREEZER_RACE(int level) {
+<span class="fc" id="L47">        String name = &quot;Freezer Race&quot;;</span>
+<span class="fc" id="L48">        Image image = new Image(new Texture(&quot;assets/hud/freezer_race_power.png&quot;));</span>
+<span class="fc" id="L49">        String desc = &quot;&quot;;</span>
+<span class="fc" id="L50">        int rarity = 1;</span>
+<span class="pc bpc" id="L51" title="1 of 2 branches missed.">        if (level == 1) {</span>
+<span class="fc" id="L52">            desc = &quot;Shoots out small cocktails periodically that creates small puddles that slow enemies&quot;;</span>
+        }
+<span class="pc bpc" id="L54" title="1 of 2 branches missed.">        if (level == 2) {</span>
+<span class="nc" id="L55">            desc = &quot;Shoots freezer bottles more frequently&quot;;</span>
+        }
+<span class="pc bpc" id="L57" title="1 of 2 branches missed.">        if (level == 3) {</span>
+<span class="nc" id="L58">            desc = &quot;Puddles last longer&quot;;</span>
+        }
+<span class="pc bpc" id="L60" title="1 of 2 branches missed.">        if (level == 4) {</span>
+<span class="nc" id="L61">            desc = &quot;Shoots freezer bottles more frequently&quot;;</span>
+        }
+<span class="pc bpc" id="L63" title="1 of 2 branches missed.">        if (level == 5) {</span>
+<span class="nc" id="L64">            desc = &quot;Deals more damage&quot;;</span>
+        }
+<span class="pc bpc" id="L66" title="1 of 2 branches missed.">        if (level == 6) {</span>
+<span class="nc" id="L67">            desc = &quot;Shoots freezer bottles more frequently&quot;;</span>
+        }
+
+
+<span class="fc" id="L71">        return new Power(name, desc, level, image, rarity);</span>
+    }
+
+    public static Power SHOTGUN(int level) {
+<span class="fc" id="L75">        String name = &quot;Shotgun&quot;;</span>
+<span class="fc" id="L76">        Image image = new Image(new Texture(&quot;assets/hud/shotgun_power.png&quot;));</span>
+<span class="fc" id="L77">        String desc = &quot;&quot;;</span>
+<span class="fc" id="L78">        int rarity = 1;</span>
+<span class="pc bpc" id="L79" title="1 of 2 branches missed.">        if (level == 1) {</span>
+<span class="fc" id="L80">            desc = &quot;Switches out your beer bottles for 3 beer cans that do less damage&quot;;</span>
+        }
+<span class="pc bpc" id="L82" title="1 of 2 branches missed.">        if (level == 2) {</span>
+<span class="nc" id="L83">            desc = &quot;Deals more damage&quot;;</span>
+        }
+<span class="pc bpc" id="L85" title="1 of 2 branches missed.">        if (level == 3) {</span>
+<span class="nc" id="L86">            desc = &quot;+ 1 beer can&quot;;</span>
+        }
+<span class="pc bpc" id="L88" title="1 of 2 branches missed.">        if (level == 4) {</span>
+<span class="nc" id="L89">            desc = &quot;Deals more damage&quot;;</span>
+        }
+<span class="pc bpc" id="L91" title="1 of 2 branches missed.">        if (level == 5) {</span>
+<span class="nc" id="L92">            desc = &quot;+ 1 beer can&quot;;</span>
+        }
+
+<span class="fc" id="L95">        return new Power(name, desc, level, image, rarity);</span>
+    }
+
+    public static Power MOVEMENT_SPEED(int level) {
+<span class="fc" id="L99">        String name = &quot;Rainbow Shoes&quot;;</span>
+<span class="fc" id="L100">        String desc = &quot;Increases movement speed&quot;;</span>
+<span class="fc" id="L101">        Image image = new Image(new Texture(&quot;assets/hud/movement_speed_power.png&quot;));</span>
+<span class="fc" id="L102">        int rarity = 0;</span>
+
+<span class="fc" id="L104">        return new Power(name, desc, level, image, rarity);</span>
+    }
+
+    public static Power ACIDIC_CIDER(int level) {
+<span class="fc" id="L108">        String name = &quot;Acidic Cider&quot;;</span>
+<span class="fc" id="L109">        Image image = new Image(new Texture(&quot;assets/hud/acidic_cider_power.png&quot;));</span>
+<span class="fc" id="L110">        String desc = &quot;&quot;;</span>
+<span class="fc" id="L111">        int rarity = 1;</span>
+<span class="fc bfc" id="L112" title="All 2 branches covered.">        if (level == 1) {</span>
+<span class="fc" id="L113">            desc = &quot;Occasionally shoots out a poisonous cider where you're aiming&quot;;</span>
+        }
+<span class="fc bfc" id="L115" title="All 2 branches covered.">        if (level == 2) {</span>
+<span class="fc" id="L116">            desc = &quot;Poison lasts longer&quot;;</span>
+        }
+<span class="fc bfc" id="L118" title="All 2 branches covered.">        if (level == 3) {</span>
+<span class="fc" id="L119">            desc = &quot;+ 1 cider can&quot;;</span>
+        }
+<span class="fc bfc" id="L121" title="All 2 branches covered.">        if (level == 4) {</span>
+<span class="fc" id="L122">            desc = &quot;Shoots cider cans more frequently&quot;;</span>
+        }
+<span class="pc bpc" id="L124" title="1 of 2 branches missed.">        if (level == 5) {</span>
+<span class="nc" id="L125">            desc = &quot;+ 1 cider can&quot;;</span>
+        }
+
+<span class="fc" id="L128">        return new Power(name, desc, level, image, rarity);</span>
+    }
+
+    public static Power PRESSURE_CHAMPAGNE(int level) {
+<span class="fc" id="L132">        String name = &quot;Pressure Champagne&quot;;</span>
+<span class="fc" id="L133">        Image image = new Image(new Texture(&quot;assets/hud/champagne_power.png&quot;));</span>
+<span class="fc" id="L134">        String desc = &quot;&quot;;</span>
+<span class="fc" id="L135">        int rarity = 2;</span>
+<span class="pc bpc" id="L136" title="1 of 2 branches missed.">        if (level == 1) {</span>
+<span class="fc" id="L137">            desc = &quot;Shoots a high speed cork \n       that has a 10% chance to critically strike&quot;;</span>
+        }
+<span class="pc bpc" id="L139" title="1 of 2 branches missed.">        if (level == 2) {</span>
+<span class="nc" id="L140">            desc = &quot;Deals more damage&quot;;</span>
+        }
+<span class="pc bpc" id="L142" title="1 of 2 branches missed.">        if (level == 3) {</span>
+<span class="nc" id="L143">            desc = &quot;Critical chance increased to 20%&quot;;</span>
+        }
+<span class="pc bpc" id="L145" title="1 of 2 branches missed.">        if (level == 4) {</span>
+<span class="nc" id="L146">            desc = &quot;Shoots corks more frequently&quot;;</span>
+        }
+<span class="pc bpc" id="L148" title="1 of 2 branches missed.">        if (level == 5) {</span>
+<span class="nc" id="L149">            desc = &quot;Deals more damage&quot;;</span>
+        }
+
+<span class="fc" id="L152">        return new Power(name, desc, level, image, rarity);</span>
+    }
+
+
+    /**
+     * gets the name of the power
+     * @return name
+     */
+    public String getName() {
+<span class="fc" id="L161">        return name;</span>
+    }
+
+
+    /**
+     * gets the description of the power
+     * @return description
+     */
+    public String getDescription() {
+<span class="fc" id="L170">        return description;</span>
+    }
+
+
+    /**
+     * gets the level of the power
+     * @return level
+     */
+    public int getLevel() {
+<span class="fc" id="L179">        return level;</span>
+    }
+
+
+    /**
+     * gets the rarity of the power
+     * @return rarity
+     */
+    public int getRarity() {
+<span class="fc" id="L188">        return rarity;</span>
+    }
+
+
+    /**
+     * gets the picture corresponding to the power
+     * @return picture
+     */
+    public Image getPicture() {
+<span class="fc" id="L197">        return picture;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

@@ -1,0 +1,710 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>GameScreen.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">hyttetur</a> &gt; <a href="index.source.html" class="el_package">inf112.skeleton.screens</a> &gt; <span class="el_source">GameScreen.java</span></div><h1>GameScreen.java</h1><pre class="source lang-java linenums">package inf112.skeleton.screens;
+
+import com.badlogic.gdx.*;
+import com.badlogic.gdx.graphics.g2d.Batch;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.maps.tiled.TiledMap;
+import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
+import com.badlogic.gdx.utils.TimeUtils;
+import com.badlogic.gdx.utils.viewport.FitViewport;
+import com.badlogic.gdx.utils.viewport.Viewport;
+import inf112.skeleton.inGameMenus.IG_howToPlay;
+import inf112.skeleton.map.MapHandler;
+import inf112.skeleton.player.DefaultEnemy;
+import inf112.skeleton.player.Player;
+import inf112.skeleton.projectile.Projectile;
+import inf112.skeleton.inGameMenus.InGameMenu;
+import inf112.skeleton.projectile.*;
+
+import java.util.ArrayList;
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
+import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.Cursor;
+import com.badlogic.gdx.graphics.GL30;
+import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.Texture;
+import inf112.skeleton.ui.DeathScreen;
+import inf112.skeleton.ui.Hud;
+import inf112.skeleton.ui.LevelHud;
+
+
+public class GameScreen extends Game implements Screen {
+    private OrthographicCamera camera;
+    private SpriteBatch batch;
+    private BitmapFont font;
+    Texture beer_bottle;
+    Texture circle;
+    Texture crosshair;
+    public Player player;
+    Rectangle crossbox;
+
+<span class="fc" id="L48">    ArrayList&lt;Particle&gt; particleList = new ArrayList&lt;&gt;();</span>
+
+<span class="fc" id="L50">    ArrayList&lt;DefaultEnemy&gt; enemyList = new ArrayList&lt;&gt;();</span>
+
+<span class="fc" id="L52">    ArrayList&lt;Weapon&gt; weaponList = new ArrayList&lt;&gt;();</span>
+
+<span class="fc" id="L54">    ArrayList&lt;AreaOfEffect&gt; areaOfEffectList = new ArrayList&lt;&gt;();</span>
+    MapHandler map;
+
+    com.badlogic.gdx.scenes.scene2d.ui.Window levelWindow;
+<span class="fc" id="L58">    private boolean levelComplete = false;</span>
+
+    public DefaultEnemy enemy;  //added enemy
+
+    ShapeRenderer renderer;
+
+    Hyttetur hyttetur;
+    Viewport viewport;
+    Stage stage;
+    TiledMap tiledMap;
+
+
+    Drawable background;
+    Hud hud;
+
+    DeathScreen deathScreen;
+    LevelHud levelHud;
+    InGameMenu inGameMenu;
+    public IG_howToPlay ig_howToPlay;
+
+
+<span class="fc" id="L79">    boolean hRender = false;</span>
+<span class="fc" id="L80">    boolean paused = false;</span>
+<span class="fc" id="L81">    private boolean gameOver = false;</span>
+<span class="fc" id="L82">    private long gameEndedTime = 0;</span>
+
+    Skin skin;
+
+
+    public static final int S_WIDTH = 480;
+    public static final int S_HEIGHT = 250;
+
+    private LevelComplete levelCompleteUI;
+
+<span class="fc" id="L92">    public GameScreen(Hyttetur game, OrthographicCamera camera) {</span>
+<span class="fc" id="L93">        this.hyttetur = game;</span>
+<span class="fc" id="L94">        this.camera = camera;</span>
+<span class="fc" id="L95">        this.batch = new SpriteBatch();</span>
+
+<span class="fc" id="L97">        viewport = new FitViewport(S_WIDTH, S_HEIGHT, camera);</span>
+
+
+<span class="fc" id="L100">        this.stage = new Stage(viewport, batch);</span>
+<span class="fc" id="L101">        map = new MapHandler(1);</span>
+
+
+<span class="fc" id="L104">        batch = new SpriteBatch();</span>
+<span class="fc" id="L105">        font = new BitmapFont();</span>
+<span class="fc" id="L106">        font.setColor(Color.BLUE);</span>
+<span class="fc" id="L107">        crosshair = new Texture(&quot;assets/crosshair.png&quot;);</span>
+<span class="fc" id="L108">        renderer = new ShapeRenderer();</span>
+
+
+<span class="fc" id="L111">        crossbox = new Rectangle();</span>
+
+<span class="fc" id="L113">        player = new Player(30, 23, map.getPlayerSpawnX(), map.getPlayerSpawnY(), 4, map, crossbox, 100, this);</span>
+<span class="fc" id="L114">        player.setAtkSpeed(0);</span>
+<span class="fc" id="L115">        player.setAtkDamage(0);</span>
+<span class="fc" id="L116">        player.setShotgun(0);</span>
+<span class="fc" id="L117">        player.setFreezerRace(0);</span>
+<span class="fc" id="L118">        player.setRainbowShoes(0);</span>
+<span class="fc" id="L119">        player.setAcidicCider(0);</span>
+<span class="fc" id="L120">        player.setPressureChampagne(0);</span>
+
+<span class="fc" id="L122">        hud = new Hud(batch);</span>
+<span class="fc" id="L123">        deathScreen = new DeathScreen(batch);</span>
+<span class="fc" id="L124">        levelHud = new LevelHud(batch, player);</span>
+<span class="fc" id="L125">        levelHud.setShow(false);</span>
+
+
+<span class="fc" id="L128">        crossbox = new Rectangle();</span>
+
+<span class="fc" id="L130">        player = new Player(30, 23, map.getPlayerSpawnX(), map.getPlayerSpawnY(), 4, map, crossbox, 100, this);</span>
+
+
+<span class="fc" id="L133">        levelHud = new LevelHud(batch, player);</span>
+<span class="fc" id="L134">        levelHud.setShow(false);</span>
+
+<span class="fc" id="L136">        inGameMenu = new InGameMenu(batch, hyttetur);</span>
+<span class="fc" id="L137">        inGameMenu.setShow(false);</span>
+<span class="fc" id="L138">        ig_howToPlay = new IG_howToPlay(batch);</span>
+<span class="fc" id="L139">        ig_howToPlay.setShow(false);</span>
+
+<span class="fc" id="L141">        levelCompleteUI = new LevelComplete(batch);</span>
+<span class="fc" id="L142">    }</span>
+
+    @Override
+    public void create() {
+<span class="nc" id="L146">        batch = new SpriteBatch();</span>
+<span class="nc" id="L147">        font = new BitmapFont();</span>
+<span class="nc" id="L148">        font.setColor(Color.BLUE);</span>
+<span class="nc" id="L149">        crosshair = new Texture(&quot;assets/crosshair.png&quot;);</span>
+<span class="nc" id="L150">        renderer = new ShapeRenderer();</span>
+
+
+<span class="nc" id="L153">        crossbox = new Rectangle();</span>
+
+
+<span class="nc" id="L156">        stage.addActor(levelWindow);</span>
+
+
+<span class="nc" id="L159">    }</span>
+
+    @Override
+    public void dispose() {
+<span class="nc" id="L163">        batch.dispose();</span>
+<span class="nc" id="L164">        font.dispose();</span>
+<span class="nc" id="L165">        map.getTiledMap().dispose();</span>
+<span class="nc" id="L166">        map.getMapRenderer().dispose();</span>
+<span class="nc" id="L167">        hud.stage.dispose();</span>
+<span class="nc" id="L168">        levelHud.stage.dispose();</span>
+<span class="nc" id="L169">        levelCompleteUI.dispose();</span>
+
+<span class="nc" id="L171">    }</span>
+
+    @Override
+    public void render(float v) {
+<span class="nc" id="L175">        Gdx.gl.glClearColor(0, 0, 0, 1);</span>
+<span class="nc" id="L176">        Gdx.gl.glClear(GL30.GL_COLOR_BUFFER_BIT);</span>
+<span class="nc" id="L177">        renderer.begin(ShapeRenderer.ShapeType.Line);</span>
+<span class="nc" id="L178">        renderer.setProjectionMatrix(camera.combined);</span>
+
+        // Handle key input
+<span class="nc" id="L181">        handleKeyInput();</span>
+
+        // Handles game over
+<span class="nc bnc" id="L184" title="All 2 branches missed.">        if (gameOver) {</span>
+<span class="nc" id="L185">            gameOver();</span>
+        }
+
+        // Updating camera
+<span class="nc" id="L189">        map.getMapRenderer().setView(camera);</span>
+        
+<span class="nc" id="L191">        float cameraX = checkStopCameraX();</span>
+<span class="nc" id="L192">        float cameraY = checkStopCameraY();</span>
+
+<span class="nc" id="L194">        updateCamera(cameraX, cameraY);</span>
+
+        
+        // Updates map
+<span class="nc" id="L198">        map.renderMap(levelComplete); </span>
+
+        
+        // Update player scores for UI
+<span class="nc" id="L202">        hud.update(player);</span>
+
+        
+        // Drawing sprites
+        // Begin batch for drawing sprites
+<span class="nc" id="L207">        batch.begin();</span>
+<span class="nc" id="L208">        batch.setProjectionMatrix(camera.combined);</span>
+        
+<span class="nc" id="L210">        drawSprites(batch);</span>
+        
+
+        // Handles and sets level completed and what batch should been drawn
+<span class="nc" id="L214">        levelComplete(levelComplete, cameraX, cameraY);</span>
+
+
+        // Updates rendering for player
+<span class="nc" id="L218">        updatePlayerOnScreen(particleList, weaponList, areaOfEffectList);</span>
+        
+        // batch drawing ends
+<span class="nc" id="L221">        batch.end();</span>
+
+        // Set mouse position
+<span class="nc" id="L224">        Vector3 mousePos = new Vector3();</span>
+<span class="nc" id="L225">        mousePos.set(Gdx.input.getX(), Gdx.input.getY(), 0);</span>
+<span class="nc" id="L226">        camera.unproject(mousePos);</span>
+<span class="nc" id="L227">        crossbox.x = mousePos.x - 8;</span>
+<span class="nc" id="L228">        crossbox.y = mousePos.y - 10;</span>
+
+        // Render hitboxes for debugging
+<span class="nc" id="L231">        debugHitbox();</span>
+
+        // End renderer
+<span class="nc" id="L234">        renderer.end();</span>
+
+        // Handle when player dies
+<span class="nc" id="L237">        handlePlayerDie(player);</span>
+
+        // Draw hud
+<span class="nc" id="L240">        hud.stage.draw();</span>
+        
+        // Draw menus when called on
+<span class="nc" id="L243">        drawInGameMenus();</span>
+
+        // Handle when leveled up
+<span class="nc" id="L246">        drawLevelUp();</span>
+
+        // Handles when game is set to pause
+<span class="nc" id="L249">        setGamePause();</span>
+        
+
+        // Render extra for screen when level completed
+<span class="nc bnc" id="L253" title="All 2 branches missed.">        if (levelComplete) {</span>
+<span class="nc" id="L254">            levelCompleteUI.drawLevel();</span>
+        }
+
+
+<span class="nc" id="L258">    }</span>
+
+
+
+
+    /**
+     * method to be able to set the state of the game to game over
+     */
+    public void setGameOver(){
+<span class="nc" id="L267">        this.gameOver = true;</span>
+<span class="nc bnc" id="L268" title="All 2 branches missed.">        if (gameEndedTime == 0) {</span>
+<span class="nc" id="L269">            gameEndedTime = TimeUtils.millis();</span>
+        }
+<span class="nc bnc" id="L271" title="All 2 branches missed.">        if (TimeUtils.millis() - gameEndedTime &gt; 3000) {</span>
+<span class="nc" id="L272">            setScreen(new GameOverScreen(hyttetur, camera));</span>
+        }
+<span class="nc" id="L274">    }</span>
+
+    /**
+     * If any menus is shown set game to pause
+     */
+    private void setGamePause() {
+<span class="nc bnc" id="L280" title="All 6 branches missed.">        if (!inGameMenu.show() &amp;&amp; !ig_howToPlay.show() &amp;&amp; !levelHud.show()) {</span>
+<span class="nc" id="L281">            paused = false;</span>
+        } else {
+<span class="nc" id="L283">            paused = true;</span>
+<span class="nc" id="L284">            Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Arrow);</span>
+        }
+
+<span class="nc" id="L287">    }</span>
+
+    /**
+     * If all enemies are cleared on level, level complte is set to true
+     */
+    private void setLevelCompleted() {
+<span class="nc bnc" id="L293" title="All 4 branches missed.">        if((map.getEnemyList().size() &lt;= 0) &amp;&amp; (map.getSpawnLimit() &lt;= 0)) {</span>
+<span class="nc" id="L294">            levelComplete = true;</span>
+        } else {
+<span class="nc" id="L296">            levelComplete = false;</span>
+        }
+<span class="nc" id="L298">    }</span>
+
+
+    @Override
+    public void show() {
+
+
+<span class="nc" id="L305">    }</span>
+
+    @Override
+    public void resize(int width, int height) {
+<span class="nc" id="L309">    }</span>
+
+    @Override
+    public void pause() {
+
+<span class="nc" id="L314">    }</span>
+
+    @Override
+    public void resume() {
+<span class="nc" id="L318">    }</span>
+
+    @Override
+    public void hide() {
+
+<span class="nc" id="L323">    }</span>
+
+    /**
+     * Draw level up hud if player leveled up 
+     * */     
+    private void drawLevelUp() {
+<span class="nc bnc" id="L329" title="All 2 branches missed.">        if (player.isLeveling()) {</span>
+<span class="nc" id="L330">            levelHud = new LevelHud(batch, player);</span>
+<span class="nc" id="L331">            levelHud.setShow(true);</span>
+<span class="nc" id="L332">            player.setLeveling(false);</span>
+        }
+<span class="nc" id="L334">    }</span>
+
+    /**
+     * Update player with new parameters
+     * 
+     * @param particleList 
+     * @param weaponList
+     * @param areaOfEffectList
+     */
+    private void updatePlayerOnScreen(ArrayList&lt;Particle&gt; particleList, ArrayList&lt;Weapon&gt; weaponList, ArrayList&lt;AreaOfEffect&gt; areaOfEffectList) {
+<span class="nc bnc" id="L344" title="All 6 branches missed.">        if ((!paused) &amp;&amp; (!levelHud.show()) &amp;&amp; player.isAlive) {</span>
+<span class="nc" id="L345">            player.update(map.getObjectList(), map.getProjectileList(), particleList, map.getEnemyList(), weaponList, areaOfEffectList);</span>
+<span class="nc" id="L346">            camera.update();</span>
+
+                
+        
+        }
+<span class="nc" id="L351">    }</span>
+    
+    /**
+     * Handle player and game screen when player dies
+     * @param player in game
+     */
+    private void handlePlayerDie(Player player) {
+<span class="nc" id="L358">        playerDie(player);</span>
+<span class="nc" id="L359">        drawDeathScreen(player);</span>
+<span class="nc" id="L360">    }</span>
+    
+    /**
+     * set player to dead if HP below zero and set game to game over
+     * @param player in game
+     */
+    private void playerDie(Player player) {
+<span class="nc bnc" id="L367" title="All 2 branches missed.">        if (player.getHP() &lt;= 0) {</span>
+<span class="nc bnc" id="L368" title="All 2 branches missed.">            if (map.getMapMusic() != null) {</span>
+<span class="nc" id="L369">                map.getMapMusic().stop();</span>
+            }
+<span class="nc" id="L371">            player.isAlive = false;</span>
+<span class="nc" id="L372">            setGameOver();</span>
+        }
+
+<span class="nc" id="L375">    }</span>
+
+    /**
+     * Draws player has dies on screen
+     * @param player to check if dead
+     */
+    private void drawDeathScreen(Player player) {
+<span class="nc bnc" id="L382" title="All 2 branches missed.">        if (!player.isAlive) {</span>
+<span class="nc" id="L383">            deathScreen.stage.draw();</span>
+<span class="nc" id="L384">            deathScreen.update();</span>
+<span class="nc bnc" id="L385" title="All 2 branches missed.">            if (TimeUtils.millis() - player.getLastDamaged() &gt; 10000) {</span>
+<span class="nc" id="L386">                player.getDeathSound().play();</span>
+<span class="nc" id="L387">                player.setLastDamaged(TimeUtils.millis());</span>
+            }
+        }
+<span class="nc" id="L390">    }</span>
+    
+    /**
+     * Updates camera with x and y position
+     * @param cameraX current x position
+     * @param cameraY curren y position
+     */
+    private void updateCamera(float cameraX,  float cameraY) {
+        
+<span class="nc" id="L399">        cameraX = checkStopCameraX();</span>
+<span class="nc" id="L400">        cameraY = checkStopCameraY();</span>
+
+
+<span class="nc" id="L403">        camera.position.set(cameraX, cameraY, 0);</span>
+<span class="nc" id="L404">    }</span>
+
+    /**
+     * Gives x coordinate for camera, stops if at edge of map
+     * @return x coordinate as float
+     */
+    private float checkStopCameraX() {
+
+<span class="nc" id="L412">        float stopCameraXRight = stopCameraXRight();</span>
+<span class="nc" id="L413">        float stopCameraXLeft = stopCameraXLeft();</span>
+
+<span class="nc bnc" id="L415" title="All 2 branches missed.">        if(player.getHitbox().x &lt; stopCameraXLeft) {</span>
+<span class="nc" id="L416">            return stopCameraXLeft;</span>
+        }
+
+<span class="nc bnc" id="L419" title="All 2 branches missed.">        if(player.getHitbox().x &gt; stopCameraXRight) {</span>
+<span class="nc" id="L420">            return stopCameraXRight;</span>
+        }
+
+<span class="nc" id="L423">        return player.getHitbox().x;</span>
+
+    }
+
+    
+    /**
+     * Checks where camera should stop width
+     * @return max x coordinate
+     */
+    private int stopCameraXRight() {
+<span class="nc" id="L433">        int mapWidthInPixels = map.getMapInPixels(&quot;width&quot;);</span>
+<span class="nc" id="L434">        int stopCameraXpos = mapWidthInPixels - S_WIDTH/2;</span>
+
+<span class="nc" id="L436">        return stopCameraXpos;</span>
+    };
+
+    /**
+     * Ges screen width
+     * @return screen width as integer
+     */
+    private int stopCameraXLeft() {
+<span class="nc" id="L444">        return S_WIDTH/2;</span>
+    };
+
+    /**
+     * Gives y coordinate for camera, stops if at edge of map
+     * @return y coordinate as float
+     */
+    private float checkStopCameraY() {
+
+<span class="nc" id="L453">        float stopCameraYTop = stopCameraYTop();</span>
+        
+<span class="nc" id="L455">        float stopCameraYBot = stopCameraYBot();</span>
+  
+
+<span class="nc bnc" id="L458" title="All 2 branches missed.">        if(player.getHitbox().y &lt; stopCameraYBot) {</span>
+<span class="nc" id="L459">            return stopCameraYBot;</span>
+        }
+
+<span class="nc bnc" id="L462" title="All 2 branches missed.">        if(player.getHitbox().y &gt; stopCameraYTop) {</span>
+<span class="nc" id="L463">            return stopCameraYTop;</span>
+        }
+
+<span class="nc" id="L466">        return player.getHitbox().y;</span>
+
+
+    }
+    
+    /**
+     * Checks where camera should stop height
+     * @return max y coordinate
+     */
+    private int stopCameraYTop() {
+<span class="nc" id="L476">        int mapHeightInPixels = map.getMapInPixels(&quot;height&quot;);</span>
+<span class="nc" id="L477">        int stopCameraYpos = mapHeightInPixels - S_HEIGHT/2;</span>
+
+<span class="nc" id="L479">        return stopCameraYpos;</span>
+    }
+    /**
+     * Ges screen height
+     * @return screen width as integer
+     */
+    private int stopCameraYBot() {
+<span class="nc" id="L486">        return S_HEIGHT/2;</span>
+    }
+
+        
+    /**
+     * Sets screen to game over if game finished
+     */
+    private void gameOver(){
+<span class="nc bnc" id="L494" title="All 2 branches missed.">        if(TimeUtils.millis() - gameEndedTime &gt; 3000){</span>
+<span class="nc" id="L495">            GameOverScreen gameOver = new GameOverScreen(hyttetur, camera);</span>
+<span class="nc" id="L496">            hyttetur.setScreen(gameOver);</span>
+        }
+<span class="nc" id="L498">    }</span>
+
+    /**
+     * Sets screen to game complete if game finished
+     */
+    private void gameComplete() {
+
+<span class="nc" id="L505">        GameComepletedScreen gameCompleted = new GameComepletedScreen(hyttetur, camera);</span>
+<span class="nc" id="L506">        hyttetur.setScreen(gameCompleted);</span>
+<span class="nc" id="L507">    }</span>
+
+    
+    /**
+     * Handles level complete - draw arrows to show exit on map. If new level exists it is loaded if not game completed is laoded
+     * @param levelComplete true if level completed
+     * @param cameraX x coordinate for camera
+     * @param cameraY y coordinate for camera
+     */
+    private void levelComplete(boolean levelComplete, float cameraX, float cameraY) {
+<span class="nc" id="L517">        setLevelCompleted();</span>
+<span class="nc bnc" id="L518" title="All 4 branches missed.">        if (levelComplete &amp;&amp; !paused) {</span>
+<span class="nc" id="L519">            levelCompleteUI.drawBothArrows(cameraX, cameraY, map.getExitX(), map.getExitY());</span>
+<span class="nc" id="L520">            int nextLevel = player.checkNextLevel(map.getNextLevel());</span>
+
+<span class="nc bnc" id="L522" title="All 2 branches missed.">            if (nextLevel == map.getMaxLevel()) {</span>
+<span class="nc" id="L523">                gameComplete();</span>
+<span class="nc" id="L524">                return;</span>
+            }
+
+<span class="nc bnc" id="L527" title="All 2 branches missed.">            if ((nextLevel &gt; 0)) { // if player stands on next level and level cleared - new map is loaded</span>
+<span class="nc" id="L528">                map.loadNewMap(nextLevel);</span>
+<span class="nc" id="L529">                player.movePlayerToSpawn();</span>
+                
+            }
+
+        }
+<span class="nc" id="L534">    }</span>
+
+    /**
+     * Draw interfaces
+     */
+    private void drawInGameMenus() {
+<span class="nc bnc" id="L540" title="All 2 branches missed.">        if (levelHud.show()) {</span>
+<span class="nc" id="L541">            levelHud.stage.draw();</span>
+<span class="nc" id="L542">            levelHud.stage.act();</span>
+        }
+
+<span class="nc bnc" id="L545" title="All 2 branches missed.">        if (inGameMenu.show()) {</span>
+<span class="nc" id="L546">            inGameMenu.stage.act();</span>
+<span class="nc" id="L547">            inGameMenu.stage.draw();</span>
+        }
+
+
+<span class="nc bnc" id="L551" title="All 2 branches missed.">        if (ig_howToPlay.show()) {</span>
+<span class="nc" id="L552">            ig_howToPlay.stage.act();</span>
+<span class="nc" id="L553">            ig_howToPlay.stage.draw();</span>
+        }
+<span class="nc" id="L555">    }</span>
+
+    /**
+     * Draw spritebatches
+     * @param batch to draw with
+     */
+    private void drawSprites(SpriteBatch batch) {
+        // Drawing player
+<span class="nc" id="L563">        batch.draw(player, player.getX() - 3.5f, player.getY(), player.getWidth() + 7, player.getHeight());</span>
+        
+        // Drawing area affects
+<span class="nc" id="L566">        drawAreaEffects(batch);</span>
+        // Drawing projectiles
+<span class="nc" id="L568">        drawProjectiles(batch);</span>
+        // Drawing enemies
+<span class="nc" id="L570">        renderEntities(batch);</span>
+
+        // Drawing weapons
+<span class="nc bnc" id="L573" title="All 2 branches missed.">        for (Weapon weapon : weaponList) {</span>
+<span class="nc" id="L574">            weapon.render(batch);</span>
+<span class="nc" id="L575">        }</span>
+
+        // Drawing particles
+<span class="nc bnc" id="L578" title="All 2 branches missed.">        for (Particle particle : particleList) {</span>
+<span class="nc" id="L579">            particle.render(batch);</span>
+<span class="nc" id="L580">            particle.update();</span>
+<span class="nc" id="L581">        }</span>
+
+        // Drawing system cursor
+<span class="nc bnc" id="L584" title="All 4 branches missed.">        if(!paused &amp;&amp; !levelHud.show()) {</span>
+<span class="nc" id="L585">            batch.draw(crosshair, crossbox.x, crossbox.y);</span>
+<span class="nc" id="L586">            Gdx.graphics.setSystemCursor(Cursor.SystemCursor.None);</span>
+        }
+
+        
+<span class="nc" id="L590">    }</span>
+    
+    /**
+     * Draw area effects
+     * @param batch 
+     */
+    private void drawAreaEffects(SpriteBatch batch) {
+<span class="nc bnc" id="L597" title="All 2 branches missed.">        for (AreaOfEffect areaOfEffect : areaOfEffectList) {</span>
+<span class="nc" id="L598">            areaOfEffect.render(batch);</span>
+<span class="nc" id="L599">            areaOfEffect.update(map.getEnemyList(), player);</span>
+<span class="nc bnc" id="L600" title="All 2 branches missed.">            if (hRender) {</span>
+<span class="nc bnc" id="L601" title="All 2 branches missed.">                if (areaOfEffect.isActive()) {</span>
+<span class="nc" id="L602">                    renderer.rect(areaOfEffect.getHitbox().x, areaOfEffect.getHitbox().y, areaOfEffect.getHitbox().width, areaOfEffect.getHitbox().height);</span>
+                }
+            }
+<span class="nc" id="L605">        }</span>
+<span class="nc" id="L606">    }</span>
+
+    /**
+     * Draw projectiles 
+     * @param batch 
+     */
+    private void drawProjectiles(SpriteBatch batch) {
+        /*
+        For every projectile currently spawned, update every projectiles location and draws them
+        */
+<span class="nc bnc" id="L616" title="All 2 branches missed.">        for (Projectile projectile : map.getProjectileList()) {</span>
+<span class="nc bnc" id="L617" title="All 2 branches missed.">            if (projectile.isAlive) {</span>
+                //batch.draw(projectile.getTexture(), projectile.getX(), projectile.getY(), projectile.getWidth(), projectile.getHeight());
+<span class="nc" id="L619">                projectile.render(batch);</span>
+<span class="nc bnc" id="L620" title="All 2 branches missed.">                if (!paused) {</span>
+<span class="nc bnc" id="L621" title="All 2 branches missed.">                    if (!levelHud.show()) {</span>
+<span class="nc" id="L622">                        projectile.update(particleList);</span>
+                    }
+                }
+<span class="nc bnc" id="L625" title="All 2 branches missed.">                if (hRender) {</span>
+<span class="nc" id="L626">                    renderer.rect(projectile.getHitbox().x, projectile.getHitbox().getY(), projectile.getHitbox().getWidth(), projectile.getHitbox().getHeight());</span>
+                }
+            }
+<span class="nc" id="L629">        }</span>
+<span class="nc" id="L630">    }</span>
+
+    /**
+     * Draw enemies and update alive enemies
+     * @param batch 
+     */
+    private void renderEntities(SpriteBatch batch) {
+        
+<span class="nc" id="L638">        map.spawnEntities(player);</span>
+
+<span class="nc" id="L640">        ArrayList&lt;DefaultEnemy&gt; aliveEnimies = new ArrayList&lt;&gt;();</span>
+
+<span class="nc bnc" id="L642" title="All 2 branches missed.">        for (DefaultEnemy enemy : map.getEnemyList()) {</span>
+<span class="nc bnc" id="L643" title="All 2 branches missed.">            if (enemy.getSprite() == null) {</span>
+<span class="nc" id="L644">                throw new IllegalArgumentException(&quot;no sprite&quot;);</span>
+            }
+<span class="nc bnc" id="L646" title="All 2 branches missed.">            if (enemy.isAlive) {</span>
+<span class="nc" id="L647">                batch.draw(enemy.getSprite(), enemy.getX(), enemy.getY(), enemy.getWidth(), enemy.getHeight());</span>
+<span class="nc bnc" id="L648" title="All 2 branches missed.">                if (!paused) {</span>
+<span class="nc bnc" id="L649" title="All 2 branches missed.">                    if (!levelHud.show()) {</span>
+<span class="nc" id="L650">                        enemy.update(map.getProjectileList(), map.getEnemyList(), map.getObjectList(), hud, particleList, areaOfEffectList);</span>
+<span class="nc" id="L651">                        aliveEnimies.add(enemy);</span>
+                    }
+                }
+<span class="nc bnc" id="L654" title="All 2 branches missed.">                if (hRender) {</span>
+<span class="nc" id="L655">                    renderer.rect(enemy.getHitbox().x, enemy.getHitbox().y, enemy.getHitbox().width, enemy.getHitbox().height);</span>
+                }
+            }
+
+<span class="nc" id="L659">        }</span>
+
+<span class="nc bnc" id="L661" title="All 2 branches missed.">        if(!paused) {</span>
+<span class="nc" id="L662">            map.setEnemyList(aliveEnimies);  // updating enenmy list </span>
+        } 
+        
+<span class="nc" id="L665">    }</span>
+
+    
+    /**
+     * Keys to handle input with
+     */
+    private void handleKeyInput() {
+        // Debug hitboxer
+<span class="nc bnc" id="L673" title="All 2 branches missed.">        if (Gdx.input.isKeyPressed(Input.Keys.L)) {</span>
+<span class="nc bnc" id="L674" title="All 2 branches missed.">            hRender = !hRender;</span>
+        }
+        
+<span class="nc bnc" id="L677" title="All 2 branches missed.">        if (Gdx.input.isKeyPressed(Input.Keys.P)) {</span>
+<span class="nc" id="L678">            inGameMenu = new InGameMenu(batch, hyttetur);</span>
+<span class="nc" id="L679">            inGameMenu.setShow(true);</span>
+        }
+        
+<span class="nc bnc" id="L682" title="All 4 branches missed.">        if (Gdx.input.isKeyPressed(Input.Keys.H) &amp;&amp; inGameMenu.show()) {</span>
+<span class="nc" id="L683">            ig_howToPlay = new IG_howToPlay(batch);</span>
+<span class="nc" id="L684">            ig_howToPlay.setShow(true);</span>
+<span class="nc bnc" id="L685" title="All 2 branches missed.">            if (inGameMenu.show()) {</span>
+<span class="nc" id="L686">                inGameMenu.setShow(false);</span>
+            }
+        }
+
+<span class="nc bnc" id="L690" title="All 2 branches missed.">        if (Gdx.input.isKeyPressed(Input.Keys.ESCAPE)) {</span>
+<span class="nc" id="L691">            Gdx.app.exit();</span>
+        }
+
+<span class="nc" id="L694">    }</span>
+
+    /**
+     * Render hitboxes for debugging
+     */
+    private void debugHitbox() {
+<span class="nc bnc" id="L700" title="All 2 branches missed.">        if (hRender) {</span>
+<span class="nc" id="L701">            renderer.rect(player.getHitbox().x, player.getHitbox().y, player.getHitbox().width, player.getHitbox().height);</span>
+<span class="nc" id="L702">            renderer.rect(crossbox.x, crossbox.y, crosshair.getWidth(), crosshair.getHeight());</span>
+<span class="nc bnc" id="L703" title="All 2 branches missed.">            for (Rectangle object : map.getObjectList()) {</span>
+<span class="nc" id="L704">                renderer.rect(object.x, object.y, object.width, object.height);</span>
+<span class="nc" id="L705">            }</span>
+        }
+<span class="nc" id="L707">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

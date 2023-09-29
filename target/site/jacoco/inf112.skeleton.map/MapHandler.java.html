@@ -1,0 +1,422 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>MapHandler.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">hyttetur</a> &gt; <a href="index.source.html" class="el_package">inf112.skeleton.map</a> &gt; <span class="el_source">MapHandler.java</span></div><h1>MapHandler.java</h1><pre class="source lang-java linenums">package inf112.skeleton.map;
+
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
+import com.badlogic.gdx.audio.Music;
+import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.maps.MapLayer;
+import com.badlogic.gdx.maps.MapObject;
+import com.badlogic.gdx.maps.MapProperties;
+import com.badlogic.gdx.maps.objects.RectangleMapObject;
+import com.badlogic.gdx.maps.tiled.TiledMap;
+import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
+import com.badlogic.gdx.maps.tiled.TmxMapLoader;
+import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
+import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.utils.TimeUtils;
+import inf112.skeleton.player.DefaultEnemy;
+import inf112.skeleton.player.Player;
+import inf112.skeleton.projectile.Projectile;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Random;
+
+
+public class MapHandler {
+
+    private TiledMap tiledMap;
+    private OrthogonalTiledMapRenderer mapRenderer;
+    private ArrayList&lt;Rectangle&gt; objectList;
+    private ArrayList&lt;MapObject&gt; nextLevel;
+
+    ArrayList&lt;DefaultEnemy&gt; enemyList; // Her må det endres på
+    ArrayList&lt;Projectile&gt; projectileList;
+
+    private int currentLevel;
+<span class="fc" id="L37">    private long lastSpawnTime = 0L;</span>
+
+    private int spawnLimit;
+
+    Rectangle crossbox;
+
+    private float playerSpawnX;
+    private float playerSpawnY;
+
+    private int maxLevel;
+
+    private static HashMap&lt;Integer, String&gt; levels;
+    private static HashMap&lt;Integer, Integer&gt; levelSpawnLimit;
+
+    private Music mapMusic;
+
+    
+    static {
+<span class="fc" id="L55">        levels = new HashMap&lt;&gt;();</span>
+<span class="fc" id="L56">        levels.put(0, &quot;assets/maps/mainMap.tmx&quot;);</span>
+<span class="fc" id="L57">        levels.put(1, &quot;assets/maps/level_1.tmx&quot;);</span>
+<span class="fc" id="L58">        levels.put(2, &quot;assets/maps/level_2.tmx&quot;);</span>
+<span class="fc" id="L59">        levels.put(3, &quot;assets/maps/level_3.tmx&quot;);</span>
+
+    }
+    
+    static {
+<span class="fc" id="L64">        levelSpawnLimit = new HashMap&lt;&gt;();</span>
+<span class="fc" id="L65">        levelSpawnLimit.put(0, 9999);</span>
+<span class="fc" id="L66">        levelSpawnLimit.put(1, 5);</span>
+<span class="fc" id="L67">        levelSpawnLimit.put(2, 5);</span>
+<span class="fc" id="L68">        levelSpawnLimit.put(3, 10);</span>
+
+<span class="fc" id="L70">    }</span>
+
+
+
+
+
+<span class="fc" id="L76">    public MapHandler(int level) {</span>
+<span class="fc" id="L77">        this.currentLevel = level;</span>
+<span class="fc" id="L78">        this.crossbox = new Rectangle();</span>
+        
+<span class="fc" id="L80">        loadNewMap(currentLevel);</span>
+        
+
+<span class="fc" id="L83">    }</span>
+
+    /**
+     * Loads new map and updates instance variables according to maps layers and objects
+     * @param level to load
+     */
+    public void loadNewMap(int level) {
+<span class="fc" id="L90">        this.currentLevel = level;</span>
+<span class="fc" id="L91">        this.enemyList = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L92">        this.projectileList = new ArrayList&lt;&gt;();</span>
+
+<span class="fc" id="L94">        this.tiledMap = new TmxMapLoader().load(levels.get(level));</span>
+<span class="fc" id="L95">        this.spawnLimit = levelSpawnLimit.get(level);</span>
+        
+<span class="fc" id="L97">        int checkMaxLevel = level + 1;</span>
+
+<span class="pc bpc" id="L99" title="1 of 2 branches missed.">        if(levels.get(checkMaxLevel) == null) this.maxLevel = checkMaxLevel;</span>
+        
+<span class="fc" id="L101">        this.mapRenderer = new OrthogonalTiledMapRenderer(tiledMap);</span>
+
+<span class="fc" id="L103">        this.objectList = getRectanglesLayer(&quot;Collide&quot;);</span>
+
+<span class="fc" id="L105">        music();</span>
+
+        
+<span class="fc" id="L108">        setLocSpawnPlayer();</span>
+
+<span class="fc" id="L110">        nextLevel = new ArrayList&lt;&gt;();</span>
+        try {
+<span class="fc bfc" id="L112" title="All 2 branches covered.">            for (MapObject object : tiledMap.getLayers().get(&quot;NextLevel&quot;).getObjects().getByType(RectangleMapObject.class)) {</span>
+<span class="fc" id="L113">                nextLevel.add(object);</span>
+<span class="fc" id="L114">            }</span>
+<span class="nc" id="L115">        } catch  (Exception e) {</span>
+
+<span class="fc" id="L117">        }</span>
+<span class="fc" id="L118">    }</span>
+
+    /**
+     * method for testing purposes
+     * @return currentlevel
+     */
+    public int getLevel(){
+<span class="nc" id="L125">        return this.currentLevel;</span>
+    }
+
+
+    /**
+     * spawns entities to the map
+     * @param targetPlayer player the enemies will target
+     */
+    public void spawnEntities(Player targetPlayer) {
+<span class="nc bnc" id="L134" title="All 2 branches missed.">        if (currentLevel == 0) {</span>
+<span class="nc bnc" id="L135" title="All 2 branches missed.">            if (spawnLimit &gt; 0) {</span>
+<span class="nc bnc" id="L136" title="All 2 branches missed.">                if ((TimeUtils.millis() - 1000) &gt; lastSpawnTime) {</span>
+<span class="nc" id="L137">                    Random r = new Random();</span>
+<span class="nc" id="L138">                    int randomX = r.nextInt(getTiledMap().getProperties().get(&quot;width&quot;, Integer.class) * tiledMap.getProperties().get(&quot;tile&quot;.concat(&quot;width&quot;), Integer.class));</span>
+<span class="nc" id="L139">                    DefaultEnemy enemy = new DefaultEnemy(randomX, 0, 3, 5, this, 25, enemyList, targetPlayer, 5);</span>
+<span class="nc" id="L140">                    lastSpawnTime = TimeUtils.millis();</span>
+                }
+            }
+        }
+<span class="nc bnc" id="L144" title="All 2 branches missed.">        if (currentLevel == 1) {</span>
+<span class="nc bnc" id="L145" title="All 2 branches missed.">            if (spawnLimit &gt; 0) {</span>
+<span class="nc bnc" id="L146" title="All 2 branches missed.">                if ((TimeUtils.millis() - 4000) &gt; lastSpawnTime) {</span>
+<span class="nc" id="L147">                    DefaultEnemy enemy = new DefaultEnemy(550, 650, 3, 5, this, 25, enemyList, targetPlayer, 5);</span>
+<span class="nc" id="L148">                    spawnLimit -=1;</span>
+<span class="nc" id="L149">                    lastSpawnTime = TimeUtils.millis();</span>
+                    }
+                }
+            }
+<span class="nc bnc" id="L153" title="All 2 branches missed.">        if (currentLevel == 2) {</span>
+<span class="nc bnc" id="L154" title="All 2 branches missed.">            if (spawnLimit &gt; 0) {</span>
+<span class="nc bnc" id="L155" title="All 2 branches missed.">                if ((TimeUtils.millis() - 2000) &gt; lastSpawnTime) {</span>
+<span class="nc" id="L156">                    DefaultEnemy enemy = new DefaultEnemy(900, 50, 3, 5, this, 25, enemyList, targetPlayer, 5);</span>
+<span class="nc" id="L157">                    DefaultEnemy enemy2 = new DefaultEnemy(400, 500, 3, 5, this, 25, enemyList, targetPlayer, 5);</span>
+<span class="nc" id="L158">                    DefaultEnemy enemy3 = new DefaultEnemy(500, 800, 3, 5, this, 25, enemyList, targetPlayer, 5);</span>
+<span class="nc" id="L159">                    spawnLimit -=1;</span>
+<span class="nc" id="L160">                    lastSpawnTime = TimeUtils.millis();</span>
+                }
+            }
+        }
+<span class="nc bnc" id="L164" title="All 2 branches missed.">        if (currentLevel == 3) {</span>
+<span class="nc bnc" id="L165" title="All 2 branches missed.">            if (spawnLimit &gt; 0) {</span>
+<span class="nc bnc" id="L166" title="All 2 branches missed.">                if ((TimeUtils.millis() - 2000) &gt; lastSpawnTime) {</span>
+<span class="nc" id="L167">                    DefaultEnemy enemy2 = new DefaultEnemy(350, 600, 3, 5, this, 25, enemyList, targetPlayer, 5);</span>
+<span class="nc" id="L168">                    DefaultEnemy enemy3 = new DefaultEnemy(1200, 600, 3, 5, this, 25, enemyList, targetPlayer, 5);</span>
+<span class="nc" id="L169">                    spawnLimit -=1;</span>
+<span class="nc" id="L170">                    lastSpawnTime = TimeUtils.millis();</span>
+                }
+            }
+        }
+
+
+<span class="nc" id="L176">    }</span>
+
+    /**
+     * Code for the music that plays in the
+     * background during the different levels
+     */
+
+    public void music() {
+<span class="pc bpc" id="L184" title="1 of 2 branches missed.">        if (mapMusic != null) {</span>
+<span class="nc" id="L185">            mapMusic.stop();</span>
+        }
+<span class="pc bpc" id="L187" title="1 of 2 branches missed.">        if (currentLevel == 0) {</span>
+<span class="nc" id="L188">            mapMusic = null;</span>
+        }
+<span class="pc bpc" id="L190" title="1 of 2 branches missed.">        if (currentLevel == 1) {</span>
+<span class="fc" id="L191">            mapMusic = Gdx.audio.newMusic(Gdx.files.internal(&quot;assets/sounds/music/cans_and_bottles_1.mp3&quot;));</span>
+        }
+<span class="pc bpc" id="L193" title="1 of 2 branches missed.">        if (currentLevel == 2) {</span>
+<span class="nc" id="L194">            mapMusic = Gdx.audio.newMusic(Gdx.files.internal(&quot;assets/sounds/music/cans_and_bottles_2.mp3&quot;));</span>
+        }
+<span class="pc bpc" id="L196" title="1 of 2 branches missed.">        if (currentLevel == 3) {</span>
+<span class="nc" id="L197">            mapMusic = Gdx.audio.newMusic(Gdx.files.internal(&quot;assets/sounds/music/cans_and_bottles_3.mp3&quot;));</span>
+        }
+
+<span class="pc bpc" id="L200" title="1 of 2 branches missed.">        if (mapMusic != null) {</span>
+<span class="fc" id="L201">            mapMusic.setLooping(true);</span>
+<span class="fc" id="L202">            mapMusic.setVolume(0.5f);</span>
+<span class="fc" id="L203">            mapMusic.play();</span>
+        }
+<span class="fc" id="L205">    }</span>
+
+
+    /**
+     * gets the tiled map
+     * @return tiledMap
+     */
+    public TiledMap getTiledMap() {
+<span class="nc" id="L213">        return tiledMap;</span>
+    }
+
+    public int getMaxLevel() {
+<span class="nc" id="L217">        return this.maxLevel;</span>
+    }
+
+
+    /**
+     * gets the map properties
+     * @return properties of the tiled map
+     */
+    public MapProperties getMapProperties() {
+<span class="nc" id="L226">        return tiledMap.getProperties();</span>
+    }
+
+    /*
+     * Returns map coordinates in pixel
+     */
+    public int getMapInPixels(String dimension) {
+<span class="nc" id="L233">        MapProperties mapProperties = getMapProperties();</span>
+<span class="nc" id="L234">        return mapProperties.get(dimension, Integer.class) * mapProperties.get(&quot;tile&quot;.concat(dimension), Integer.class);</span>
+    }
+
+    /**
+     * Get rectangles in object layer
+     * @param layer
+     * @return list with rectangels
+     */
+    private ArrayList&lt;Rectangle&gt; getRectanglesLayer(String layer) {
+        
+<span class="fc" id="L244">        ArrayList&lt;Rectangle&gt; rectangles = new ArrayList&lt;&gt;();</span>
+        
+<span class="fc bfc" id="L246" title="All 2 branches covered.">        for (MapObject object : tiledMap.getLayers().get(layer).getObjects().getByType(RectangleMapObject.class)) {</span>
+<span class="fc" id="L247">            Rectangle rect = ((RectangleMapObject) object).getRectangle();</span>
+<span class="fc" id="L248">            rectangles.add(rect);</span>
+<span class="fc" id="L249">        }</span>
+
+<span class="fc" id="L251">        return rectangles;</span>
+    }
+    
+    
+    /**
+     * Sets x and y coordinate for player spawn - assuming only one spawn
+     */
+    private void setLocSpawnPlayer() {
+<span class="fc" id="L259">        ArrayList&lt;Rectangle&gt; rectangles = getRectanglesLayer(&quot;PlayerSpawn&quot;);</span>
+
+<span class="fc bfc" id="L261" title="All 2 branches covered.">        for (Rectangle rec : rectangles) {</span>
+<span class="fc" id="L262">            setPlayerSpawnX(rec);</span>
+<span class="fc" id="L263">            setPlayerSpawnY(rec);</span>
+<span class="fc" id="L264">        }</span>
+
+<span class="fc" id="L266">    }</span>
+    
+    /**
+     * Sets x coordinate for player spawn
+     * @param rec
+     */
+    private void setPlayerSpawnX(Rectangle rec) {
+<span class="fc" id="L273">        this.playerSpawnX = rec.getX();</span>
+<span class="fc" id="L274">    }</span>
+
+    /**
+     * Sets y coordinate for player spawn
+     * @param rec
+     */
+    private void setPlayerSpawnY(Rectangle rec) {
+<span class="fc" id="L281">        this.playerSpawnY = rec.getY();</span>
+<span class="fc" id="L282">    }</span>
+
+    /**
+     * 
+     * @return x coordinate for player spawn
+     */
+    public float getPlayerSpawnX() {
+<span class="fc" id="L289">        return playerSpawnX;</span>
+    }
+
+    /**
+     * 
+     * @return y coordinate for player spawn
+     */
+    public float getPlayerSpawnY() {
+<span class="fc" id="L297">        return playerSpawnY;</span>
+    }
+
+
+    public OrthogonalTiledMapRenderer getMapRenderer() {
+<span class="nc" id="L302">        return mapRenderer;</span>
+    }
+
+    /*
+     * Stops rendering layer NewLevelLayer when level is true
+     */
+    public void renderMap(boolean levelComplete) {
+        
+<span class="nc" id="L310">        MapLayer layerToExclude = null;</span>
+
+<span class="nc bnc" id="L312" title="All 2 branches missed.">        if(levelComplete) {</span>
+<span class="nc" id="L313">            layerToExclude = tiledMap.getLayers().get(&quot;NewLevelLayer&quot;);</span>
+        
+        }
+        
+<span class="nc" id="L317">        OrthogonalTiledMapRenderer renderer = getMapRenderer();</span>
+        
+<span class="nc" id="L319">        renderer.getBatch().begin();</span>
+<span class="nc bnc" id="L320" title="All 2 branches missed.">        for (MapLayer layer : tiledMap.getLayers()) {</span>
+<span class="nc bnc" id="L321" title="All 2 branches missed.">            if (layer == layerToExclude) {</span>
+<span class="nc" id="L322">                continue;</span>
+            }
+<span class="nc bnc" id="L324" title="All 2 branches missed.">            if (layer instanceof TiledMapTileLayer) {</span>
+                // Render each tile layer individually
+<span class="nc" id="L326">                renderer.renderTileLayer((TiledMapTileLayer) layer);</span>
+            }
+        
+<span class="nc" id="L329">        }</span>
+
+<span class="nc" id="L331">        renderer.getBatch().end();</span>
+<span class="nc" id="L332">    }</span>
+
+    /*
+     * Gets x coordinate of exit
+     */
+    public float getExitX() {
+<span class="nc bnc" id="L338" title="All 2 branches missed.">        if(nextLevel.size() == 0) {</span>
+<span class="nc" id="L339">            return -1;</span>
+        }
+<span class="nc" id="L341">        MapObject objectLevel = nextLevel.get(0);</span>
+
+<span class="nc" id="L343">        Rectangle rect = ((RectangleMapObject) objectLevel).getRectangle();</span>
+
+<span class="nc" id="L345">        return rect.getX();</span>
+    }
+
+    /*
+     * Gets y coordinate of exit
+     */
+    public float getExitY() {
+<span class="nc bnc" id="L352" title="All 2 branches missed.">        if(nextLevel.size() == 0) {</span>
+<span class="nc" id="L353">            return -1;</span>
+        }
+        
+<span class="nc" id="L356">        MapObject objectLevel = nextLevel.get(0);</span>
+
+<span class="nc" id="L358">        Rectangle rect = ((RectangleMapObject) objectLevel).getRectangle();</span>
+
+<span class="nc" id="L360">        return rect.getY();</span>
+
+    }
+
+    public ArrayList&lt;Rectangle&gt; getObjectList() {
+<span class="nc" id="L365">        return objectList;</span>
+    }
+
+    public ArrayList&lt;MapObject&gt; getNextLevel() {
+<span class="nc" id="L369">        return nextLevel;</span>
+    }
+
+    public int getSpawnLimit() {
+<span class="nc" id="L373">        return spawnLimit;</span>
+    }
+
+    public int getCurrentLevel() {
+<span class="nc" id="L377">        return currentLevel;</span>
+    }
+
+    public void setTiledMap(TiledMap tiledMap) {
+<span class="nc" id="L381">        this.tiledMap = tiledMap;</span>
+<span class="nc" id="L382">    }</span>
+
+
+    /**
+     * gets the enemy list
+     * @return enemyList
+     */
+    public ArrayList&lt;DefaultEnemy&gt; getEnemyList() {
+<span class="nc" id="L390">        return enemyList;</span>
+    }
+
+    public void setEnemyList(ArrayList&lt;DefaultEnemy&gt; enemies) {
+<span class="nc" id="L394">        this.enemyList = enemies;</span>
+<span class="nc" id="L395">    }</span>
+
+    public ArrayList&lt;Projectile&gt; getProjectileList() {
+<span class="nc" id="L398">        return projectileList;</span>
+    }
+
+    public void setProjectileList(ArrayList&lt;Projectile&gt; projectileList) {
+<span class="nc" id="L402">        this.projectileList = projectileList;</span>
+<span class="nc" id="L403">    }</span>
+
+    /**
+     * gets the crossbox
+     * @return crossbox
+     */
+    public Rectangle getCrossbox() {
+<span class="nc" id="L410">        return crossbox;</span>
+    }
+
+    public Music getMapMusic() {
+<span class="nc" id="L414">        return mapMusic;</span>
+    }
+
+    public void setMapMusic(Music mapMusic) {
+<span class="nc" id="L418">        this.mapMusic = mapMusic;</span>
+<span class="nc" id="L419">    }</span>
+}
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

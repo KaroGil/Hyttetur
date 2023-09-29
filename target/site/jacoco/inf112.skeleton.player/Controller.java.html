@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Controller.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">hyttetur</a> &gt; <a href="index.source.html" class="el_package">inf112.skeleton.player</a> &gt; <span class="el_source">Controller.java</span></div><h1>Controller.java</h1><pre class="source lang-java linenums">package inf112.skeleton.player;
+
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
+import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.utils.TimeUtils;
+import inf112.skeleton.projectile.Projectile;
+
+import java.util.ArrayList;
+
+<span class="fc" id="L11">public class Controller implements IController {</span>
+
+    @Override
+    public Player.State movePlayer(Rectangle hitbox, Player.State state, Player player) {
+<span class="nc bnc" id="L15" title="All 2 branches missed.">        if (Gdx.input.isKeyPressed(Input.Keys.D)) {</span>
+<span class="nc" id="L16">            hitbox.x += 10 * (player.getMovementSpeed() * 1.5 + 0.5 * player.getRainbowShoes()) * player.movementSpeedMultiplier * Gdx.graphics.getDeltaTime();</span>
+<span class="nc" id="L17">            state = Player.State.RUNNINGRIGHT;</span>
+        }
+<span class="nc bnc" id="L19" title="All 2 branches missed.">        if (Gdx.input.isKeyPressed(Input.Keys.A)) {</span>
+<span class="nc" id="L20">            hitbox.x -= 10 * (player.getMovementSpeed() * 1.5 + 0.5 * player.getRainbowShoes()) * player.movementSpeedMultiplier * Gdx.graphics.getDeltaTime();</span>
+<span class="nc" id="L21">            state = Player.State.RUNNINGLEFT;</span>
+        }
+<span class="nc bnc" id="L23" title="All 2 branches missed.">        if (Gdx.input.isKeyPressed(Input.Keys.S)) {</span>
+<span class="nc" id="L24">            hitbox.y -= 10 * (player.getMovementSpeed() * 1.5 + 0.5 * player.getRainbowShoes()) * player.movementSpeedMultiplier * Gdx.graphics.getDeltaTime();</span>
+<span class="nc" id="L25">            state = Player.State.RUNNINGDOWN;</span>
+        }
+<span class="nc bnc" id="L27" title="All 2 branches missed.">        if (Gdx.input.isKeyPressed(Input.Keys.W)) {</span>
+<span class="nc" id="L28">            hitbox.y += 10 * (player.getMovementSpeed() * 1.5 + 0.5 * player.getRainbowShoes()) * player.movementSpeedMultiplier * Gdx.graphics.getDeltaTime();</span>
+<span class="nc" id="L29">            state = Player.State.RUNNINGUP;</span>
+        }
+<span class="nc bnc" id="L31" title="All 2 branches missed.">        if (!Gdx.input.isKeyPressed(Input.Keys.ANY_KEY)) {</span>
+<span class="nc" id="L32">            state = Player.State.STANDING;</span>
+        }
+
+<span class="nc" id="L35">        return state;</span>
+    }
+
+    @Override
+    public void throwBottle(Rectangle mouse, ArrayList&lt;Projectile&gt; projectileList, Player player) {
+<span class="nc bnc" id="L40" title="All 4 branches missed.">        if (Gdx.input.isTouched() &amp;&amp; (TimeUtils.millis() - player.getLastShotTime() &gt; 1000 * (1 - (0.1 * player.getAtkSpeed())))) {</span>
+<span class="nc bnc" id="L41" title="All 2 branches missed.">            if (player.getShotgun() &lt;= 0) {</span>
+<span class="nc" id="L42">                Projectile.createBeerBottle(mouse.x, mouse.y, player, projectileList);</span>
+<span class="nc" id="L43">                player.setLastShotTime(TimeUtils.millis());</span>
+            } else {
+<span class="nc bnc" id="L45" title="All 6 branches missed.">                switch (player.getShotgun()) {</span>
+<span class="nc" id="L46">                    case 1 -&gt; Projectile.createBeerCan(mouse.x, mouse.y, player, projectileList, 3, 0);</span>
+<span class="nc" id="L47">                    case 2 -&gt; Projectile.createBeerCan(mouse.x, mouse.y, player, projectileList, 4, 0);</span>
+<span class="nc" id="L48">                    case 3 -&gt; Projectile.createBeerCan(mouse.x, mouse.y, player, projectileList, 4, 1);</span>
+<span class="nc" id="L49">                    case 4 -&gt; Projectile.createBeerCan(mouse.x, mouse.y, player, projectileList, 6, 1);</span>
+<span class="nc" id="L50">                    case 5 -&gt; Projectile.createBeerCan(mouse.x, mouse.y, player, projectileList, 6, 2);</span>
+                }
+<span class="nc" id="L52">                player.setLastShotTime(TimeUtils.millis());</span>
+            }
+        }
+
+
+<span class="nc" id="L57">    }}</span>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

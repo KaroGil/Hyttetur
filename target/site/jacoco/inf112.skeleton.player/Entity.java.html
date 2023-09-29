@@ -1,0 +1,436 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Entity.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">hyttetur</a> &gt; <a href="index.source.html" class="el_package">inf112.skeleton.player</a> &gt; <span class="el_source">Entity.java</span></div><h1>Entity.java</h1><pre class="source lang-java linenums">package inf112.skeleton.player;
+
+import com.badlogic.gdx.audio.Sound;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.utils.TimeUtils;
+import inf112.skeleton.map.MapHandler;
+import inf112.skeleton.projectile.AreaOfEffect;
+import inf112.skeleton.projectile.Effect;
+import inf112.skeleton.projectile.Particle;
+import inf112.skeleton.projectile.Projectile;
+import inf112.skeleton.ui.Hud;
+import java.util.ArrayList;
+import java.util.Random;
+
+/**
+ * Class to determine the common properties of the player and all other entities.
+ */
+public abstract class Entity extends Sprite{
+
+    protected float width, height;
+    protected float x, y, centerX, centerY, movementSpeed;
+    public int HP;
+    public boolean isAlive;
+    Texture tex;
+    SpriteBatch batch;
+    private int maxHP;
+    Sprite sprite;
+    protected Rectangle hitbox;
+    protected int atkSpeed;
+    protected int atkDamage;
+    protected Sound attackSound, hurtSound;
+    protected long lastDamaged;
+    protected long lastPoisoned;
+<span class="fc" id="L37">    protected int spread = 0;</span>
+    protected MapHandler map;
+    protected long lastShotTime;
+    protected ArrayList&lt;Projectile&gt; projectileList;
+    protected ArrayList&lt;Effect&gt; effectList;
+
+<span class="fc" id="L43">    protected float movementSpeedMultiplier = 1;</span>
+
+    protected long lastAreaOfEffect;
+
+
+<span class="fc" id="L48">    public Entity(MapHandler map, float x, float y, int maxHP, float movementSpeed) {</span>
+<span class="fc" id="L49">        this.map = map;</span>
+<span class="fc" id="L50">        this.movementSpeed = 0;</span>
+<span class="fc" id="L51">        this.isAlive = true;</span>
+<span class="fc" id="L52">        this.batch = new SpriteBatch();</span>
+<span class="fc" id="L53">        this.maxHP = maxHP;</span>
+<span class="fc" id="L54">        this.movementSpeed = movementSpeed;</span>
+<span class="fc" id="L55">        atkSpeed = 1;</span>
+<span class="fc" id="L56">        atkDamage = 1;</span>
+<span class="fc" id="L57">        this.effectList = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L58">    }</span>
+    public void damage(float damage, ArrayList&lt;Particle&gt; particleList) {
+<span class="nc" id="L60">        HP -= damage;</span>
+<span class="nc" id="L61">        Particle.NUMBER((int)damage, x, y, particleList);</span>
+<span class="nc" id="L62">    }</span>
+
+
+    /**
+     * gets the height
+     * @return height
+     */
+    public float getHeight() {
+<span class="fc" id="L70">        return this.height;</span>
+    }
+
+
+    /**
+     * gets the width
+     * @return width
+     */
+    public float getWidth() {
+<span class="fc" id="L79">        return this.width;</span>
+    }
+
+    /**
+     * gets the HP of the entity
+     * @return HP value
+     */
+    public float getHP() {
+<span class="nc" id="L87">        return this.HP;</span>
+    }
+
+
+    /**
+     * gets the value of the isAlive variable
+     * tells us if the player is alive or dead
+     * @return isAlive value
+     */
+    public boolean isAlive() {
+<span class="fc" id="L97">        return this.isAlive;</span>
+    }
+
+
+    /**
+     * gets the entities hitbox
+     * @return hitbox
+     */
+    public Rectangle getHitbox() {
+<span class="fc" id="L106">        return hitbox;</span>
+    }
+
+
+    /**
+     * sets the hitbox of the entity with the given value
+     * @param hitbox value
+     */
+    public void setHitbox(Rectangle hitbox) {
+<span class="nc" id="L115">        this.hitbox = hitbox;</span>
+<span class="nc" id="L116">    }</span>
+
+
+    /**
+     * gets X coordinate of the entity
+     * @return X
+     */
+    public float getX() {
+<span class="nc" id="L124">        return x;</span>
+    }
+
+
+    /**
+     * gets the Y coordinate of the entity
+     * @return Y
+     */
+    public float getY() {
+<span class="nc" id="L133">        return y;</span>
+    }
+
+
+    /**
+     * Method for the death of an entity
+     * @param hud
+     */
+<span class="nc" id="L141">    public void die(Hud hud) {}</span>
+
+
+    protected void applyEffects(ArrayList&lt;Particle&gt; particleList) {
+<span class="nc bnc" id="L145" title="All 2 branches missed.">        if (effectList != null) {</span>
+<span class="nc bnc" id="L146" title="All 2 branches missed.">            effectList.removeIf(effect -&gt; !effect.isActive());</span>
+<span class="nc bnc" id="L147" title="All 2 branches missed.">            for (Effect effect : effectList) {</span>
+<span class="nc" id="L148">                effect.apply(this, particleList);</span>
+<span class="nc bnc" id="L149" title="All 2 branches missed.">                if (effect.getName().equals(&quot;SLOW&quot;)) {</span>
+<span class="nc bnc" id="L150" title="All 2 branches missed.">                    if (!effect.isActive()) {</span>
+<span class="nc" id="L151">                        movementSpeedMultiplier = 1;</span>
+                    }
+            }
+<span class="nc" id="L154">        }</span>
+        }
+
+
+<span class="nc" id="L158">    }</span>
+
+
+
+    /**
+     * checks for map collisions with the entities
+     * @param objectList hitbox list
+     */
+    protected void checkMapCollision(ArrayList&lt;Rectangle&gt; objectList) {
+<span class="nc bnc" id="L167" title="All 2 branches missed.">        for (Rectangle object: objectList) {</span>
+<span class="nc bnc" id="L168" title="All 2 branches missed.">            if (hitbox.overlaps(object)) {</span>
+<span class="nc" id="L169">                float downValue = hitbox.y + hitbox.height - object.y;</span>
+<span class="nc" id="L170">                float upValue = hitbox.y - (object.y + object.height);</span>
+<span class="nc" id="L171">                float leftValue = (hitbox.x + hitbox.width) - object.x;</span>
+<span class="nc" id="L172">                float rightValue = hitbox.x - (object.x + object.width);</span>
+<span class="nc" id="L173">                float absRightValue = Math.abs(rightValue);</span>
+<span class="nc" id="L174">                float absLeftValue = Math.abs(leftValue);</span>
+<span class="nc" id="L175">                float absUpValue = Math.abs(upValue);</span>
+<span class="nc" id="L176">                float absDownValue = Math.abs(downValue);</span>
+
+                // LEFT VALUE
+<span class="nc bnc" id="L179" title="All 6 branches missed.">                if (absLeftValue &lt; absDownValue &amp;&amp; absLeftValue &lt; absRightValue &amp;&amp; absLeftValue &lt; absUpValue){</span>
+<span class="nc" id="L180">                    hitbox.x = object.x - hitbox.width;</span>
+                }
+                // DOWN VALUE
+<span class="nc bnc" id="L183" title="All 6 branches missed.">                if (absDownValue &lt; absRightValue &amp;&amp; absDownValue &lt; absLeftValue &amp;&amp; absDownValue &lt; absUpValue){</span>
+<span class="nc" id="L184">                    hitbox.y = object.y - hitbox.height;</span>
+                }
+                // RIGHT VALUE
+<span class="nc bnc" id="L187" title="All 6 branches missed.">                if (absRightValue &lt; absLeftValue &amp;&amp; absRightValue &lt; absDownValue &amp;&amp; absRightValue &lt; absUpValue){</span>
+<span class="nc" id="L188">                    hitbox.x = object.x + object.width;</span>
+                }
+                // UP VALUE
+<span class="nc bnc" id="L191" title="All 6 branches missed.">                if (absUpValue &lt; absLeftValue &amp;&amp; absUpValue &lt; absDownValue &amp;&amp; absUpValue &lt; absRightValue){</span>
+<span class="nc" id="L192">                    hitbox.y = object.y + object.height;</span>
+                }
+            }
+<span class="nc" id="L195">        }</span>
+<span class="nc" id="L196">    }</span>
+
+    protected void checkProjectileCollision(ArrayList&lt;Projectile&gt; projectileList, ArrayList&lt;Particle&gt; particleList, ArrayList&lt;AreaOfEffect&gt; areaOfEffectList) {
+<span class="nc bnc" id="L199" title="All 2 branches missed.">        for (Projectile projectile: projectileList) {</span>
+<span class="nc bnc" id="L200" title="All 2 branches missed.">                if (projectile.getHitbox().overlaps(hitbox)) {</span>
+<span class="nc bnc" id="L201" title="All 2 branches missed.">                    if (projectile.getOwner() != this)</span>
+<span class="nc bnc" id="L202" title="All 2 branches missed.">                        if (projectile.isAlive) {</span>
+<span class="nc" id="L203">                            damage(projectile.getDamage() * (1 + 0.1f * projectile.getOwner().atkDamage), particleList);</span>
+<span class="nc bnc" id="L204" title="All 2 branches missed.">                            if (projectile.getEffect() != null) {</span>
+<span class="nc" id="L205">                                effectList.removeIf(effect -&gt; effect.getName().equals(projectile.getEffect().getName()));</span>
+<span class="nc" id="L206">                                effectList.add(projectile.getEffect());</span>
+                            }
+<span class="nc bnc" id="L208" title="All 2 branches missed.">                            if (projectile.getAreaOfEffect() != null) {</span>
+<span class="nc" id="L209">                                areaOfEffectList.add(projectile.getAreaOfEffect());</span>
+                            }
+<span class="nc" id="L211">                            projectile.getHitSound().play(0.3f);</span>
+<span class="nc" id="L212">                            projectile.isAlive = false;</span>
+<span class="nc" id="L213">                            lastDamaged = TimeUtils.millis();</span>
+
+<span class="nc bnc" id="L215" title="All 2 branches missed.">                            if (projectile.getOwner().getSpread() &gt; 0) {</span>
+<span class="nc" id="L216">                                Random r = new Random();</span>
+<span class="nc bnc" id="L217" title="All 2 branches missed.">                                for (int i = 0; i &lt; projectile.getOwner().getSpread(); i++) {</span>
+<span class="nc" id="L218">                                    float number1 = r.nextFloat(20);</span>
+<span class="nc" id="L219">                                    float number2 = r.nextFloat(20);</span>
+
+
+                                }
+                            }
+                        }
+                    }
+<span class="nc" id="L226">            }</span>
+<span class="nc" id="L227">        }</span>
+
+
+    /**
+     * checks if player is inside map
+     */
+    public boolean checkEdge() {
+<span class="nc" id="L234">        boolean onEdge = false;</span>
+<span class="nc" id="L235">        float widthMax = map.getMapInPixels(&quot;width&quot;) - hitbox.width;</span>
+<span class="nc" id="L236">        float heightMax = map.getMapInPixels(&quot;height&quot;) - hitbox.height;</span>
+
+        // Checking width
+<span class="nc bnc" id="L239" title="All 2 branches missed.">        if(hitbox.x &lt; 0) {</span>
+<span class="nc" id="L240">            hitbox.x = 0;</span>
+<span class="nc" id="L241">            onEdge = true;</span>
+        }
+<span class="nc bnc" id="L243" title="All 2 branches missed.">        if(hitbox.x &gt; widthMax) {</span>
+<span class="nc" id="L244">            hitbox.x = widthMax;</span>
+<span class="nc" id="L245">            onEdge = true;</span>
+        }
+        // Checking height
+<span class="nc bnc" id="L248" title="All 2 branches missed.">        if(hitbox.y &lt; 0) {</span>
+<span class="nc" id="L249">            hitbox.y = 0;</span>
+<span class="nc" id="L250">            onEdge = true;</span>
+        }
+<span class="nc bnc" id="L252" title="All 2 branches missed.">        if(hitbox.y &gt; heightMax) {</span>
+<span class="nc" id="L253">            hitbox.y = heightMax;</span>
+<span class="nc" id="L254">            onEdge = true;</span>
+        }
+
+<span class="nc" id="L257">        return onEdge;</span>
+    }
+
+
+
+    /**
+     * sets the akt speed to the given value
+     * @param atkSpeed the given value
+     */
+    public void setAtkSpeed(int atkSpeed) {
+<span class="fc" id="L267">        this.atkSpeed = atkSpeed;</span>
+<span class="fc" id="L268">    }</span>
+
+
+    /**
+     * sets the akt damange to the given value
+     * @param atkDamage the given value
+     */
+    public void setAtkDamage(int atkDamage) {
+<span class="fc" id="L276">        this.atkDamage = atkDamage;</span>
+<span class="fc" id="L277">    }</span>
+
+
+    /**
+     * gets the akt speed
+     * @return aktspeed value
+     */
+    public int getAtkSpeed() {
+<span class="fc" id="L285">        return atkSpeed;</span>
+    }
+
+
+    /**
+     * gets the akt damage
+     * @return aktdamage value
+     */
+    public int getAtkDamage() {
+<span class="fc" id="L294">        return atkDamage;</span>
+    }
+
+
+    /**
+     * gets the movement speed
+     * @return movement speed of the entity
+     */
+    public float getMovementSpeed() {
+<span class="fc" id="L303">        return movementSpeed;</span>
+    }
+
+
+    /**
+     * sets the movement speed of the entity
+     * @param movementSpeed value of movement speed
+     */
+    public void setMovementSpeed(float movementSpeed) {
+<span class="fc" id="L312">        this.movementSpeed = movementSpeed;</span>
+<span class="fc" id="L313">    }</span>
+
+
+    /**
+     * gets the spread value
+     * @return spread value
+     */
+    public int getSpread() {
+<span class="nc" id="L321">        return spread;</span>
+    }
+
+
+    /**
+     * sets the spread to the given value
+     * @param spread value
+     */
+    public void setSpread(int spread) {
+<span class="nc" id="L330">        this.spread = spread;</span>
+<span class="nc" id="L331">    }</span>
+
+
+    /**
+     * gets the last shot time value
+     * @return lastShotTime value
+     */
+    public long getLastShotTime () {
+<span class="nc" id="L339">        return lastShotTime;</span>
+    }
+
+
+    /**
+     * sets the lastShotTime parameter to the give value
+     * @param lastShotTime value
+     */
+    public void setLastShotTime ( long lastShotTime){
+<span class="nc" id="L348">        this.lastShotTime = lastShotTime;</span>
+<span class="nc" id="L349">    }</span>
+
+
+    /**
+     * gets the centerX value
+     * @return centerX value
+     */
+    public float getCenterX() {
+<span class="nc" id="L357">        return centerX;</span>
+    }
+
+
+    @Override
+    public void setCenterX(float centerX) {
+<span class="nc" id="L363">        this.centerX = centerX;</span>
+<span class="nc" id="L364">    }</span>
+
+
+    /**
+     * gets the centerY value
+     * @return centerY value
+     */
+    public float getCenterY() {
+<span class="nc" id="L372">        return centerY;</span>
+    }
+
+
+    @Override
+    public void setCenterY(float centerY) {
+<span class="nc" id="L378">        this.centerY = centerY;</span>
+<span class="nc" id="L379">    }</span>
+
+
+    /**
+     * gets the lastDamaged value
+     * @return lastDamaged value
+     */
+    public long getLastDamaged() {
+<span class="nc" id="L387">        return lastDamaged;</span>
+    }
+
+
+    /**
+     * sets the lastDamanged value to the given value
+     * @param lastDamaged value
+     */
+    public void setLastDamaged(long lastDamaged) {
+<span class="nc" id="L396">        this.lastDamaged = lastDamaged;</span>
+<span class="nc" id="L397">    }</span>
+
+
+    /**
+     * gets the lastPoisoned value
+     * @return lastPoisoned value
+     */
+    public long getLastPoisoned() {
+<span class="nc" id="L405">        return lastPoisoned;</span>
+    }
+
+
+    /**
+     * sets lastPoisoned to the given value
+     * @param lastPoisoned value
+     */
+    public void setLastPoisoned(long lastPoisoned) {
+<span class="nc" id="L414">        this.lastPoisoned = lastPoisoned;</span>
+<span class="nc" id="L415">    }</span>
+
+    public float getMovementSpeedMultiplier() {
+<span class="nc" id="L418">        return movementSpeedMultiplier;</span>
+    }
+
+    public void setMovementSpeedMultiplier(float movementSpeedMultiplier) {
+<span class="nc" id="L422">        this.movementSpeedMultiplier = movementSpeedMultiplier;</span>
+<span class="nc" id="L423">    }</span>
+
+    public ArrayList&lt;Effect&gt; getEffectList() {
+<span class="nc" id="L426">        return effectList;</span>
+    }
+
+    public void setEffectList(ArrayList&lt;Effect&gt; effectList) {
+<span class="nc" id="L430">        this.effectList = effectList;</span>
+<span class="nc" id="L431">    }</span>
+}
+
+
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

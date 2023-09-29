@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Particle.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">hyttetur</a> &gt; <a href="index.source.html" class="el_package">inf112.skeleton.projectile</a> &gt; <span class="el_source">Particle.java</span></div><h1>Particle.java</h1><pre class="source lang-java linenums">package inf112.skeleton.projectile;
+
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.utils.TimeUtils;
+import inf112.skeleton.player.Entity;
+
+import java.awt.*;
+import java.util.ArrayList;
+import java.util.Random;
+
+public class Particle {
+
+    protected int lifetime;
+
+    protected Sprite sprite;
+
+    protected float x, y;
+
+    protected int width, height;
+
+    protected float speed, xSpeed, ySpeed;
+
+    protected long timeBorn;
+
+    protected boolean rotating;
+
+    protected int rotation;
+
+    protected Entity owner;
+
+
+
+
+
+<span class="nc" id="L40">    public Particle(int lifetime, float x, float y, int width, int height, float speed, long timeBorn) {</span>
+<span class="nc" id="L41">        this.lifetime = lifetime;</span>
+<span class="nc" id="L42">        this.x = x;</span>
+<span class="nc" id="L43">        this.y = y;</span>
+<span class="nc" id="L44">        this.width = width;</span>
+<span class="nc" id="L45">        this.height = height;</span>
+<span class="nc" id="L46">        this.speed = speed;</span>
+<span class="nc" id="L47">        this.timeBorn = timeBorn;</span>
+<span class="nc" id="L48">    }</span>
+
+    public Particle(int lifetime, float x, float y, int width, int height, float speed, long timeBorn, Sprite sprite,
+<span class="nc" id="L51">                    boolean rotating, float xSpeed, float ySpeed) {</span>
+<span class="nc" id="L52">        this.lifetime = lifetime;</span>
+<span class="nc" id="L53">        this.x = x;</span>
+<span class="nc" id="L54">        this.y = y;</span>
+<span class="nc" id="L55">        this.width = width;</span>
+<span class="nc" id="L56">        this.height = height;</span>
+<span class="nc" id="L57">        this.speed = speed;</span>
+<span class="nc" id="L58">        this.timeBorn = timeBorn;</span>
+<span class="nc" id="L59">        this.sprite = sprite;</span>
+<span class="nc" id="L60">        this.rotating = rotating;</span>
+<span class="nc" id="L61">        this.xSpeed = xSpeed;</span>
+<span class="nc" id="L62">        this.ySpeed = ySpeed;</span>
+<span class="nc" id="L63">    }</span>
+
+<span class="nc" id="L65">    public Particle(int lifetime, float x, float y, int width, int height, float speed, long timeBorn, Entity owner) {</span>
+<span class="nc" id="L66">        this.lifetime = lifetime;</span>
+<span class="nc" id="L67">        this.x = x;</span>
+<span class="nc" id="L68">        this.y = y;</span>
+<span class="nc" id="L69">        this.width = width;</span>
+<span class="nc" id="L70">        this.height = height;</span>
+<span class="nc" id="L71">        this.speed = speed;</span>
+<span class="nc" id="L72">        this.timeBorn = timeBorn;</span>
+<span class="nc" id="L73">        this.owner = owner;</span>
+<span class="nc" id="L74">    }</span>
+
+    public static void NUMBER(int damage, float x, float y, ArrayList&lt;Particle&gt; particleList) {
+<span class="nc" id="L77">        Random random = new Random();</span>
+<span class="nc" id="L78">        int random1 = random.nextInt(15);</span>
+<span class="nc" id="L79">        int random2 = random.nextInt(15);</span>
+<span class="nc" id="L80">        Particle number = new Particle(2, x + random1, y + 20 + random2, 0, 0, 2, TimeUtils.millis()) {</span>
+            @Override
+            public void render(SpriteBatch sb) {
+<span class="nc bnc" id="L83" title="All 2 branches missed.">                if (TimeUtils.millis() - timeBorn &lt; 1000L * lifetime) {</span>
+<span class="nc" id="L84">                    BitmapFont font = new BitmapFont();</span>
+<span class="nc" id="L85">                    font.setColor(Color.WHITE);</span>
+<span class="nc bnc" id="L86" title="All 2 branches missed.">                    if (damage &gt; 100) {</span>
+<span class="nc" id="L87">                        font.setColor(Color.RED);</span>
+                    }
+<span class="nc bnc" id="L89" title="All 2 branches missed.">                    else if (damage &gt; 40) {</span>
+<span class="nc" id="L90">                        font.setColor(Color.YELLOW);</span>
+                    }
+
+<span class="nc" id="L93">                    font.getData().setScale(0.6f);</span>
+<span class="nc" id="L94">                    y += 1 * speed * Gdx.graphics.getDeltaTime();</span>
+<span class="nc" id="L95">                    font.draw(sb, String.valueOf(damage), x, y);</span>
+<span class="nc" id="L96">                    speed -= 0.3;</span>
+                }
+
+<span class="nc" id="L99">            }</span>
+        };
+<span class="nc" id="L101">        particleList.add(number);</span>
+<span class="nc" id="L102">    }</span>
+
+    public static void TRAIL1(int lifetime, float x, float y, ArrayList&lt;Particle&gt; particleList, int speed, int width, int height,
+                              Texture texture, boolean rotating) {
+<span class="nc" id="L106">        Random random = new Random();</span>
+<span class="nc" id="L107">        float xSpeed = random.nextFloat(1) - 0.5f;</span>
+<span class="nc" id="L108">        float ySpeed = random.nextFloat(1) - 0.5f;</span>
+<span class="nc" id="L109">        int random1 = random.nextInt(4) - 2;</span>
+<span class="nc" id="L110">        int random2 = random.nextInt(4) - 2;</span>
+<span class="nc" id="L111">        Sprite sprite = new Sprite(texture);</span>
+<span class="nc" id="L112">        Particle trail = new Particle(lifetime, x + random1, y + random2, width, height, speed, TimeUtils.millis(), sprite, rotating, xSpeed, ySpeed) {</span>
+            @Override
+            public void render(SpriteBatch sb) {
+<span class="nc bnc" id="L115" title="All 2 branches missed.">                if (TimeUtils.millis() - timeBorn &lt; 1000L * lifetime) {</span>
+<span class="nc" id="L116">                    sprite.setSize(width, height);</span>
+<span class="nc" id="L117">                    sprite.setPosition(x, y);</span>
+<span class="nc bnc" id="L118" title="All 2 branches missed.">                    if (rotating) {</span>
+<span class="nc" id="L119">                        sprite.setRotation(rotation += 1);</span>
+                    }
+<span class="nc" id="L121">                    sprite.draw(sb);</span>
+                }
+
+<span class="nc" id="L124">            }</span>
+
+            @Override
+            public void update() {
+<span class="nc" id="L128">                x += xSpeed * speed * Gdx.graphics.getDeltaTime();</span>
+<span class="nc" id="L129">                y += ySpeed * speed * Gdx.graphics.getDeltaTime();</span>
+<span class="nc" id="L130">            }</span>
+        };
+<span class="nc" id="L132">        particleList.add(trail);</span>
+<span class="nc" id="L133">    }</span>
+
+
+
+    public void render(SpriteBatch sb) {
+<span class="nc" id="L138">    }</span>
+
+    public void update() {
+<span class="nc" id="L141">    }</span>
+
+
+    public Sprite getSprite() {
+<span class="nc" id="L145">        return sprite;</span>
+    }
+
+    public void setSprite(Sprite sprite) {
+<span class="nc" id="L149">        this.sprite = sprite;</span>
+<span class="nc" id="L150">    }</span>
+
+
+}
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

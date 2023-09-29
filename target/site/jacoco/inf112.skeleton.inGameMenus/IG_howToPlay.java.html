@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>IG_howToPlay.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">hyttetur</a> &gt; <a href="index.source.html" class="el_package">inf112.skeleton.inGameMenus</a> &gt; <span class="el_source">IG_howToPlay.java</span></div><h1>IG_howToPlay.java</h1><pre class="source lang-java linenums">package inf112.skeleton.inGameMenus;
+
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureAtlas;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.badlogic.gdx.utils.viewport.ScreenViewport;
+import com.badlogic.gdx.utils.viewport.Viewport;
+
+public class IG_howToPlay {
+
+    public Stage stage;
+    private Viewport viewport;
+    private Boolean show;
+    private Table table;
+    private Skin skin;
+    private TextureAtlas textureAtlas;
+    private SpriteBatch batch;
+
+<span class="fc" id="L28">    public IG_howToPlay(SpriteBatch batch){</span>
+<span class="fc" id="L29">        this.show = true;</span>
+<span class="fc" id="L30">        this.viewport = new ScreenViewport();</span>
+
+<span class="fc" id="L32">        this.batch = batch;</span>
+<span class="fc" id="L33">        this.stage = new Stage(viewport, batch);</span>
+
+<span class="fc" id="L35">        this.textureAtlas = new TextureAtlas(Gdx.files.internal(&quot;assets/menu/glassy-ui.atlas&quot;));</span>
+<span class="fc" id="L36">        this.skin = new Skin(Gdx.files.internal(&quot;assets/menu/glassy-ui.json&quot;));</span>
+<span class="fc" id="L37">        skin.addRegions(textureAtlas);</span>
+
+<span class="fc" id="L39">        Gdx.input.setInputProcessor(stage);</span>
+
+<span class="fc" id="L41">        this.table = makeTable();</span>
+<span class="fc" id="L42">        fillTable(table);</span>
+
+<span class="fc" id="L44">        stage.addActor(table);</span>
+<span class="fc" id="L45">    }</span>
+
+    /**
+     * makes a table for the content of the inGameMenu
+     * @return table
+     */
+    private Table makeTable(){
+<span class="fc" id="L52">        table = new Table();</span>
+<span class="fc" id="L53">        table.center();</span>
+<span class="fc" id="L54">        table.setFillParent(true);</span>
+<span class="fc" id="L55">        table.setDebug(false);</span>
+<span class="fc" id="L56">        return table;</span>
+    }
+
+    /**
+     * sets the values of the rows in the table
+     */
+    private void fillTable(Table table) {
+
+<span class="fc" id="L64">        Label.LabelStyle font = new Label.LabelStyle(new BitmapFont(), Color.WHITE);</span>
+<span class="fc" id="L65">        Label movementLabel = new Label(&quot;Move with WASD&quot;, font);</span>
+<span class="fc" id="L66">        movementLabel.setFontScale(2,2);</span>
+<span class="fc" id="L67">        Label shootLabel = new Label(&quot;LeftClick mouse/mousePad to shoot&quot;, font);</span>
+<span class="fc" id="L68">        shootLabel.setFontScale(2,2);</span>
+<span class="fc" id="L69">        Label pauseLabel = new Label(&quot;Press 'P' to pause game, and open menu&quot;, font);</span>
+<span class="fc" id="L70">        pauseLabel.setFontScale(2,2);</span>
+<span class="fc" id="L71">        Label quitGameLabel = new Label(&quot;Press 'esc' to quit the game&quot;, font);</span>
+<span class="fc" id="L72">        quitGameLabel.setFontScale(2,2);</span>
+
+<span class="fc" id="L74">        TextButton backButton = new TextButton(&quot;Back&quot;, skin);</span>
+
+<span class="fc" id="L76">        backButton.addListener(new ClickListener() {</span>
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+<span class="nc" id="L79">                setShow(false);</span>
+<span class="nc" id="L80">            }</span>
+        });
+
+<span class="fc" id="L83">        table.add(movementLabel).expandX().padTop(10);</span>
+<span class="fc" id="L84">        table.row();</span>
+<span class="fc" id="L85">        table.add(shootLabel).expandX().padTop(30);</span>
+<span class="fc" id="L86">        table.row();</span>
+<span class="fc" id="L87">        table.add(pauseLabel).expandX().padTop(30);</span>
+<span class="fc" id="L88">        table.row();</span>
+<span class="fc" id="L89">        table.add(quitGameLabel).expandX().padTop(30);</span>
+<span class="fc" id="L90">        table.row();</span>
+<span class="fc" id="L91">        table.add(backButton).expandX().padTop(30);</span>
+
+<span class="fc" id="L93">    }</span>
+
+    /**
+     * gets the value of the show variable
+     * @return show
+     */
+    public Boolean show() {
+<span class="nc" id="L100">        return show;</span>
+    }
+
+    /**
+     * sets the value of the show variable to the given value
+     * @param show value
+     */
+    public void setShow(Boolean show) {
+<span class="fc" id="L108">        this.show = show;</span>
+<span class="fc" id="L109">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Hud.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">hyttetur</a> &gt; <a href="index.source.html" class="el_package">inf112.skeleton.ui</a> &gt; <span class="el_source">Hud.java</span></div><h1>Hud.java</h1><pre class="source lang-java linenums">package inf112.skeleton.ui;
+
+import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Image;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import com.badlogic.gdx.utils.viewport.FitViewport;
+import com.badlogic.gdx.utils.viewport.Viewport;
+import inf112.skeleton.player.Player;
+import inf112.skeleton.screens.GameScreen;
+
+
+public class Hud {
+    public Stage stage;
+    private Viewport viewport;
+    private Image hpBar;
+    private Integer Score;
+    private Label scoreLabel;
+    private Image scoreImage;
+    private Label xpLabel;
+    private Label hpLabel;
+    private Label levelLabel;
+
+    private Table table;
+
+
+<span class="fc" id="L32">    public Hud(SpriteBatch sb) {</span>
+<span class="fc" id="L33">        Score = 0;</span>
+
+<span class="fc" id="L35">        viewport = new FitViewport(GameScreen.S_WIDTH, GameScreen.S_HEIGHT, new OrthographicCamera());</span>
+<span class="fc" id="L36">        stage = new Stage(viewport, sb);</span>
+
+<span class="fc" id="L38">        table = new Table();</span>
+<span class="fc" id="L39">        table.top();</span>
+<span class="fc" id="L40">        table.setFillParent(true);</span>
+<span class="fc" id="L41">        table.setDebug(false);</span>
+
+<span class="fc" id="L43">        levelLabel = new Label(String.format(&quot;&quot;, 0), new Label.LabelStyle(new BitmapFont(), Color.BLUE));</span>
+<span class="fc" id="L44">        scoreLabel = new Label(String.format(&quot;%02d&quot;, Score), new Label.LabelStyle(new BitmapFont(), Color.ROYAL));</span>
+<span class="fc" id="L45">        xpLabel = new Label(String.format(&quot;&quot;, 0), new Label.LabelStyle(new BitmapFont(), Color.BLUE));</span>
+<span class="fc" id="L46">        hpBar = new Image(new Texture(&quot;assets/hpBar.png&quot;));</span>
+<span class="fc" id="L47">        scoreImage = new Image(new Texture(&quot;assets/kill_count.png&quot;));</span>
+<span class="fc" id="L48">        hpLabel = new Label(String.format(&quot;%01d&quot;,  0), new Label.LabelStyle(new BitmapFont(), Color.GREEN));</span>
+
+<span class="fc" id="L50">        table.add(levelLabel).padBottom(10).left().top().padLeft(5);</span>
+<span class="fc" id="L51">        table.add(hpBar).padBottom(10).width(18).height(20).left().padLeft(10);</span>
+<span class="fc" id="L52">        table.add(hpLabel).expandX().left().padBottom(10);</span>
+<span class="fc" id="L53">        table.add(xpLabel).expandX().top().left();</span>
+<span class="fc" id="L54">        table.add(scoreImage).padBottom(10).right();</span>
+<span class="fc" id="L55">        table.add(scoreLabel).padBottom(10).right().padRight(10);</span>
+
+<span class="fc" id="L57">        stage.addActor(table);</span>
+
+<span class="fc" id="L59">    }</span>
+
+
+    /**
+     * update method for the hud
+     * this method updates the values of the items shown in the hud
+     * @param player player the hud displays values for
+     */
+    public void update(Player player) {
+<span class="nc" id="L68">        scoreLabel.setText(getScore());</span>
+<span class="nc" id="L69">        hpLabel.setText(player.HP);</span>
+<span class="nc" id="L70">        xpLabel.setText(player.getXp() + &quot; / &quot; + player.getXpGoal());</span>
+<span class="nc" id="L71">        levelLabel.setText(player.getLevel());</span>
+<span class="nc" id="L72">    }</span>
+
+    public void dispose() {
+<span class="nc" id="L75">        stage.dispose();</span>
+<span class="nc" id="L76">    }</span>
+
+    public void setScore(Integer score) {
+<span class="fc" id="L79">        Score = score;</span>
+<span class="fc" id="L80">    }</span>
+
+
+    /**
+     * gets the score value
+     * @return score
+     */
+    public Integer getScore() {
+<span class="fc" id="L88">        return Score;</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>HowToPlayScreen.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">hyttetur</a> &gt; <a href="index.source.html" class="el_package">inf112.skeleton.screens</a> &gt; <span class="el_source">HowToPlayScreen.java</span></div><h1>HowToPlayScreen.java</h1><pre class="source lang-java linenums">package inf112.skeleton.screens;
+
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
+import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.audio.Music;
+import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureAtlas;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.badlogic.gdx.utils.viewport.ScreenViewport;
+import com.badlogic.gdx.utils.viewport.Viewport;
+
+public class HowToPlayScreen implements Screen {
+
+    private Viewport viewport;
+    private Stage stage;
+    private OrthographicCamera camera;
+    private SpriteBatch batch;
+    private Hyttetur hyttetur;
+    private Skin skin;
+    private TextureAtlas textureAtlas;
+    private Texture background;
+    private Music menuMusic;
+
+<span class="nc" id="L36">    public HowToPlayScreen(Hyttetur hyttetur, OrthographicCamera camera) {</span>
+<span class="nc" id="L37">        this.hyttetur = hyttetur;</span>
+<span class="nc" id="L38">        this.camera = camera;</span>
+<span class="nc" id="L39">        this.batch = new SpriteBatch();</span>
+
+<span class="nc" id="L41">        this.textureAtlas = new TextureAtlas(Gdx.files.internal(&quot;assets/menu/glassy-ui.atlas&quot;));</span>
+<span class="nc" id="L42">        this.skin = new Skin(Gdx.files.internal(&quot;assets/menu/glassy-ui.json&quot;));</span>
+<span class="nc" id="L43">        skin.addRegions(textureAtlas);</span>
+
+<span class="nc" id="L45">        this.viewport = new ScreenViewport();</span>
+<span class="nc" id="L46">        viewport.apply();</span>
+
+<span class="nc" id="L48">        camera.position.set(camera.viewportWidth / 2, camera.viewportHeight / 2, 0);</span>
+<span class="nc" id="L49">        batch.setProjectionMatrix(camera.combined);</span>
+<span class="nc" id="L50">        camera.update();</span>
+
+<span class="nc" id="L52">        stage = new Stage(viewport, batch);</span>
+
+<span class="nc" id="L54">        background = new Texture(&quot;assets/menu/MenuBackground.jpg&quot;);</span>
+<span class="nc" id="L55">        this.menuMusic = Gdx.audio.newMusic(Gdx.files.internal(&quot;assets/sounds/music/the-incident-soundroll-main-version-16775-01-32.mp3&quot;));</span>
+<span class="nc" id="L56">    }</span>
+
+    /**
+     * Creates the table with HowToPlay
+     */
+    @Override
+    public void show() {
+
+<span class="nc" id="L64">        Label.LabelStyle font = new Label.LabelStyle(new BitmapFont(), Color.WHITE);</span>
+<span class="nc" id="L65">        Label movementLabel = new Label(&quot;Move with WASD&quot;, font);</span>
+<span class="nc" id="L66">        movementLabel.setFontScale(2,2);</span>
+<span class="nc" id="L67">        Label shootLabel = new Label(&quot;LeftClick mouse/mousePad to shoot&quot;, font);</span>
+<span class="nc" id="L68">        shootLabel.setFontScale(2,2);</span>
+<span class="nc" id="L69">        Label pauseLabel = new Label(&quot;Press 'P' to pause game, and open the menu&quot;, font);</span>
+<span class="nc" id="L70">        pauseLabel.setFontScale(2,2);</span>
+<span class="nc" id="L71">        Label quitGameLabel = new Label(&quot;Press 'esc' to quit the game&quot;, font);</span>
+<span class="nc" id="L72">        quitGameLabel.setFontScale(2,2);</span>
+
+<span class="nc" id="L74">        TextButton backButton = new TextButton(&quot;Back&quot;, skin);</span>
+<span class="nc" id="L75">        Gdx.input.setInputProcessor(stage);</span>
+
+<span class="nc" id="L77">        Table table = new Table();</span>
+<span class="nc" id="L78">        table.setFillParent(true);</span>
+<span class="nc" id="L79">        table.add(movementLabel).expandX().padTop(10);</span>
+<span class="nc" id="L80">        table.row();</span>
+<span class="nc" id="L81">        table.add(shootLabel).expandX().padTop(30);</span>
+<span class="nc" id="L82">        table.row();</span>
+<span class="nc" id="L83">        table.add(pauseLabel).expandX().padTop(30);</span>
+<span class="nc" id="L84">        table.row();</span>
+<span class="nc" id="L85">        table.add(quitGameLabel).expandX().padTop(30);</span>
+<span class="nc" id="L86">        table.row();</span>
+<span class="nc" id="L87">        table.add(backButton).expandX().padTop(30);</span>
+
+<span class="nc" id="L89">        stage.addActor(table);</span>
+<span class="nc" id="L90">        backButton.addListener(new ClickListener() {</span>
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+<span class="nc" id="L93">                    hyttetur.setScreen(new MainMenu(hyttetur, camera));</span>
+<span class="nc" id="L94">                    dispose();</span>
+<span class="nc" id="L95">            }</span>
+        });
+<span class="nc" id="L97">    }</span>
+
+    /**
+     * Draws and puts the table on the screen
+     */
+
+    @Override
+    public void render(float v) {
+<span class="nc" id="L105">        Gdx.gl.glClearColor(.1f, .12f, .16f, 1);</span>
+<span class="nc" id="L106">        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);</span>
+<span class="nc" id="L107">        stage.getBatch().begin();</span>
+<span class="nc" id="L108">        stage.getBatch().draw(background, 0, 0, 1920, 1080);</span>
+<span class="nc" id="L109">        stage.getBatch().end();</span>
+
+<span class="nc bnc" id="L111" title="All 2 branches missed.">        if (menuMusic != null) {</span>
+<span class="nc" id="L112">            menuMusic.setLooping(true);</span>
+<span class="nc" id="L113">            menuMusic.setVolume(0.2f);</span>
+<span class="nc" id="L114">            menuMusic.play();</span>
+        }
+
+<span class="nc" id="L117">        stage.act();</span>
+<span class="nc" id="L118">        stage.draw();</span>
+
+<span class="nc bnc" id="L120" title="All 2 branches missed.">        if(Gdx.input.isKeyPressed(Input.Keys.ESCAPE)) {</span>
+<span class="nc" id="L121">            Gdx.app.exit();</span>
+        }
+<span class="nc" id="L123">    }</span>
+
+    @Override
+    public void resize(int i, int i1) {
+
+<span class="nc" id="L128">    }</span>
+
+    @Override
+    public void pause() {
+
+<span class="nc" id="L133">    }</span>
+
+    @Override
+    public void resume() {
+
+<span class="nc" id="L138">    }</span>
+
+    @Override
+    public void hide() {
+
+<span class="nc" id="L143">    }</span>
+
+    @Override
+    public void dispose() {
+
+<span class="nc" id="L148">        skin.dispose();</span>
+<span class="nc" id="L149">        textureAtlas.dispose();</span>
+<span class="nc" id="L150">        stage.dispose();</span>
+<span class="nc" id="L151">        batch.dispose();</span>
+<span class="nc" id="L152">        menuMusic.dispose();</span>
+
+<span class="nc" id="L154">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

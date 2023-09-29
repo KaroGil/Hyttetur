@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>LevelComplete.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">hyttetur</a> &gt; <a href="index.source.html" class="el_package">inf112.skeleton.screens</a> &gt; <span class="el_source">LevelComplete.java</span></div><h1>LevelComplete.java</h1><pre class="source lang-java linenums">package inf112.skeleton.screens;
+
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Camera;
+import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.GlyphLayout;
+import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import com.badlogic.gdx.utils.viewport.Viewport;
+import com.badlogic.gdx.utils.viewport.FitViewport;
+import com.badlogic.gdx.utils.viewport.ScreenViewport;
+
+public class LevelComplete  {
+    
+    public Stage stage;
+    private Viewport viewport;
+    
+    private SpriteBatch batch;
+
+    private Texture arrowTextureRight;
+    private Texture arrowTextureLeft;
+    private Sprite arrowSpriteRight;
+    private Sprite arrowSpriteLeft;
+
+<span class="fc" id="L33">    LevelComplete(SpriteBatch batch) {</span>
+        
+<span class="fc" id="L35">        this.batch = batch;</span>
+        
+        // Load the arrow texture
+<span class="fc" id="L38">        arrowTextureRight = new Texture(&quot;assets/arrow_level_comeplete.png&quot;);</span>
+<span class="fc" id="L39">        arrowTextureLeft = new Texture(&quot;assets/arrow_level_comeplete.png&quot;);</span>
+
+        // Create a new sprite for the arrow
+<span class="fc" id="L42">        arrowSpriteRight = new Sprite(arrowTextureRight);</span>
+<span class="fc" id="L43">        arrowSpriteLeft = new Sprite(arrowTextureLeft);</span>
+
+<span class="fc" id="L45">        arrowSpriteRight.setSize(10, 18); </span>
+<span class="fc" id="L46">        arrowSpriteLeft.setSize(10, 18);</span>
+        
+
+
+        
+        // Level Complete text 
+<span class="fc" id="L52">        viewport = new FitViewport(GameScreen.S_WIDTH, GameScreen.S_HEIGHT, new OrthographicCamera());</span>
+<span class="fc" id="L53">        stage = new Stage(viewport, batch);</span>
+
+
+<span class="fc" id="L56">        Table table = new Table();</span>
+<span class="fc" id="L57">        table.top();</span>
+<span class="fc" id="L58">        table.setFillParent(true);</span>
+<span class="fc" id="L59">        table.setDebug(false);</span>
+
+<span class="fc" id="L61">        Label levelComplete = new Label(&quot;Level Complete&quot;, new Label.LabelStyle(new BitmapFont(), Color.YELLOW));</span>
+<span class="fc" id="L62">        Label goToNextLevel = new Label(&quot;Follow the arrows to keep on partying&quot;, new Label.LabelStyle(new BitmapFont(), Color.BLUE));</span>
+<span class="fc" id="L63">        goToNextLevel.setFontScale(.5f); </span>
+        
+<span class="fc" id="L65">        table.add(levelComplete).padTop(20);</span>
+<span class="fc" id="L66">        table.row();</span>
+<span class="fc" id="L67">        table.add(goToNextLevel);</span>
+        
+
+<span class="fc" id="L70">        stage.addActor(table);</span>
+        
+
+        
+<span class="fc" id="L74">    }</span>
+
+    /*
+     * Draw arrows around player
+     */
+    public void drawBothArrows(float CameraX, float cameraY, float targetX, float targetY) {
+<span class="nc bnc" id="L80" title="All 4 branches missed.">        if(targetX &lt; 0 || targetY &lt; 0 ) return;</span>
+<span class="nc" id="L81">        drawArrow(arrowSpriteRight, CameraX, cameraY, targetX, targetY, 20, 5);</span>
+<span class="nc" id="L82">        drawArrow(arrowSpriteLeft, CameraX, cameraY, targetX, targetY, -20, 5);</span>
+<span class="nc" id="L83">    }</span>
+    
+    /*
+     * Draws a single arrow
+     */
+    private void drawArrow(Sprite arrowSprite, float CameraX, float cameraY, float targetX, float targetY, float offsetX, float offsetY) {
+        
+<span class="nc" id="L90">        arrowSprite.setPosition(CameraX + offsetX, cameraY - offsetY);</span>
+         
+        // Calculate the angle between the arrow and the target position
+<span class="nc" id="L93">        float angle = MathUtils.atan2(targetX - arrowSprite.getX(), targetY - arrowSprite.getY());</span>
+
+
+        // Convert the angle to degrees and set the rotation of the arrow sprite
+<span class="nc" id="L97">        arrowSprite.setRotation(-MathUtils.radiansToDegrees * angle);</span>
+        
+
+<span class="nc" id="L100">        arrowSprite.draw(batch);</span>
+
+<span class="nc" id="L102">    }</span>
+    
+    /*
+     * Render level complete text
+     */
+    public void drawLevel() {
+<span class="nc" id="L108">        stage.act();</span>
+<span class="nc" id="L109">        stage.draw();</span>
+<span class="nc" id="L110">    }</span>
+
+    /*
+     * Disposes rendering
+     */
+    public void dispose() {
+<span class="nc" id="L116">        stage.dispose();</span>
+<span class="nc" id="L117">    }</span>
+    
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

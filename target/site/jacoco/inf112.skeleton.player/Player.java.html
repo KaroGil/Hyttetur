@@ -1,0 +1,558 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Player.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">hyttetur</a> &gt; <a href="index.source.html" class="el_package">inf112.skeleton.player</a> &gt; <span class="el_source">Player.java</span></div><h1>Player.java</h1><pre class="source lang-java linenums">package inf112.skeleton.player;
+
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.audio.Sound;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Animation;
+import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.maps.MapObject;
+import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.TimeUtils;
+import inf112.skeleton.map.MapHandler;
+import inf112.skeleton.projectile.AreaOfEffect;
+import inf112.skeleton.projectile.Particle;
+import inf112.skeleton.projectile.Projectile;
+import com.badlogic.gdx.maps.objects.RectangleMapObject;
+import inf112.skeleton.projectile.Weapon;
+import inf112.skeleton.screens.GameScreen;
+import inf112.skeleton.ui.Hud;
+
+import javax.management.DescriptorAccess;
+import java.util.ArrayList;
+import java.util.Random;
+
+
+public class Player extends Entity {
+
+<span class="fc" id="L30">    public enum State {STANDING, RUNNINGRIGHT, RUNNINGLEFT, RUNNINGUP, RUNNINGDOWN}</span>
+    private State currentState;
+    private State prevState;
+    private float stateTimer;
+
+    private TextureRegion playerStand;
+    private Animation&lt;TextureRegion&gt; playerRunDown;
+    private Animation&lt;TextureRegion&gt; playerRunUp;
+    private Animation&lt;TextureRegion&gt; playerRunLeft;
+    private Animation&lt;TextureRegion&gt; playerRunRight;
+    private Texture player;
+
+    private IController playerController;
+    private Rectangle mouse;
+    protected Sound levelUpSound;
+
+    protected Sound deathSound;
+    private GameScreen gameScreen;
+
+    private int xp;
+    private int xpGoal;
+    private  int level;
+    private boolean isLeveling;
+    private long lastDamaged;
+
+    /**POWERS*/
+    protected int shotgun;
+    protected int freezerRace;
+    protected long lastFreezer;
+    protected int rainbowShoes;
+    protected long lastRainbow;
+    protected int acidicCider;
+    protected long lastCider;
+    protected int pressureChampagne;
+    protected long lastChampagne;
+
+
+    public Player(float height, float width, float x, float y, float speed, MapHandler map, Rectangle mouse, int maxHP, GameScreen gameScreen) {
+<span class="fc" id="L68">        super(map, x, y, maxHP, speed);</span>
+
+<span class="fc" id="L70">        this.height = height;</span>
+<span class="fc" id="L71">        this.width = width;</span>
+<span class="fc" id="L72">        hitbox = new Rectangle(x, y, width,height);</span>
+<span class="fc" id="L73">        this.x = x;</span>
+<span class="fc" id="L74">        this.y = y;</span>
+<span class="fc" id="L75">        this.movementSpeed = speed;</span>
+<span class="fc" id="L76">        this.mouse = mouse;</span>
+<span class="fc" id="L77">        this.gameScreen = gameScreen;</span>
+
+<span class="fc" id="L79">        this.player = new Texture(&quot;assets/main_character_moment.png&quot;);</span>
+<span class="fc" id="L80">        currentState = State.STANDING;</span>
+<span class="fc" id="L81">        prevState = State.STANDING;</span>
+<span class="fc" id="L82">        stateTimer = 0;</span>
+
+        //setting default state
+<span class="fc" id="L85">        playerStand = new TextureRegion(getTexture(), 0, 0, 256, 256);</span>
+<span class="fc" id="L86">        setRegion(playerStand);</span>
+
+<span class="fc" id="L88">        setAnimations();</span>
+
+<span class="fc" id="L90">        playerController = new Controller();</span>
+
+<span class="fc" id="L92">        level = 1;</span>
+<span class="fc" id="L93">        HP = maxHP;</span>
+<span class="fc" id="L94">        hurtSound = Gdx.audio.newSound(Gdx.files.internal(&quot;assets/sounds/player_hurt.ogg&quot;));</span>
+<span class="fc" id="L95">        levelUpSound = Gdx.audio.newSound(Gdx.files.internal(&quot;assets/sounds/level_up_sound.ogg&quot;));</span>
+<span class="fc" id="L96">        deathSound = Gdx.audio.newSound(Gdx.files.internal(&quot;assets/sounds/death_sound.ogg&quot;));</span>
+
+<span class="fc" id="L98">        xpGoal = 25;</span>
+<span class="fc" id="L99">        xp = 0;</span>
+
+<span class="fc" id="L101">    }</span>
+
+
+    /**
+     * gets the x coordinate of the player
+     * @return X
+     */
+    public float getX() {
+<span class="fc" id="L109">        return x;</span>
+    }
+
+
+    /**
+     * gets the y coordinate of the player
+     * @return Y
+     */
+    public float getY() {
+<span class="fc" id="L118">        return y;</span>
+    }
+
+    public void update(ArrayList&lt;Rectangle&gt; objectList, ArrayList&lt;Projectile&gt; projectileList, ArrayList&lt;Particle&gt; particleList,
+                       ArrayList&lt;DefaultEnemy&gt; enemyList, ArrayList&lt;Weapon&gt; weaponList, ArrayList&lt;AreaOfEffect&gt; areaOfEffectList) {
+<span class="nc" id="L123">        checkUserInput(Gdx.graphics.getDeltaTime(), projectileList);</span>
+<span class="nc" id="L124">        x = getHitbox().x;</span>
+<span class="nc" id="L125">        y = getHitbox().y;</span>
+<span class="nc" id="L126">        checkEdge();</span>
+<span class="nc" id="L127">        checkMapCollision(objectList);</span>
+<span class="nc" id="L128">        checkProjectileCollision(projectileList, particleList, areaOfEffectList);</span>
+<span class="nc" id="L129">        setCenterX(hitbox.x + (hitbox.width / 2) - 2);</span>
+<span class="nc" id="L130">        setCenterY(hitbox.y + (hitbox.height / 2) - 2);</span>
+<span class="nc" id="L131">        automaticSpawns(projectileList, enemyList, weaponList, particleList);</span>
+<span class="nc" id="L132">        levelUp();</span>
+<span class="nc" id="L133">        die(null);</span>
+<span class="nc" id="L134">        applyEffects(particleList);</span>
+
+
+<span class="nc" id="L137">    }</span>
+
+
+    /**
+     * checks the hp and kills the player if the hp is 0 or under.
+     * plays sound for death
+     * switches isAlive state to false since the player is no longer alive.
+     * sets the screen to the gameOverscreen
+     * @param hud
+     */
+    @Override
+    public void die(Hud hud) {
+<span class="nc bnc" id="L149" title="All 2 branches missed.">        if (HP &lt;= 0) {</span>
+<span class="nc" id="L150">            isAlive = false;</span>
+        }
+<span class="nc" id="L152">    }</span>
+
+
+
+    /*
+     * Checks if player is standing on tile to next level
+     * 
+     * returns level
+     */
+    public int checkNextLevel(ArrayList&lt;MapObject&gt; nextLevel) {
+        
+<span class="nc" id="L163">        int level = -1;</span>
+
+<span class="nc bnc" id="L165" title="All 2 branches missed.">        for (MapObject object: nextLevel) {</span>
+
+<span class="nc" id="L167">            Rectangle rect = ((RectangleMapObject) object).getRectangle();</span>
+
+<span class="nc bnc" id="L169" title="All 2 branches missed.">            if (hitbox.overlaps(rect)) {</span>
+<span class="nc" id="L170">                level = (int) object.getProperties().get(&quot;Level&quot;);</span>
+
+            }
+<span class="nc" id="L173">        }</span>
+
+
+<span class="nc" id="L176">        return level;</span>
+    }
+
+    /**
+     * Moves player to start spawn in map
+     */
+    
+    public void movePlayerToSpawn() {
+<span class="nc" id="L184">        getHitbox().x = map.getPlayerSpawnX();</span>
+<span class="nc" id="L185">        getHitbox().y = map.getPlayerSpawnY();</span>
+     
+<span class="nc" id="L187">    }</span>
+
+    public void automaticSpawns(ArrayList&lt;Projectile&gt; projectileList, ArrayList&lt;DefaultEnemy&gt; enemyList, ArrayList&lt;Weapon&gt; weaponList,
+                                ArrayList&lt;Particle&gt; particleList) {
+<span class="nc" id="L191">        Random random = new Random();</span>
+        /**
+         * FREEZER MECHANIC
+         * the code for the freezer bottles that spawns after a certain period of time.
+         * It aims for a random location in the map
+         */
+<span class="nc" id="L197">        int freezerColor = random.nextInt(4) + 1;</span>
+<span class="nc bnc" id="L198" title="All 7 branches missed.">        switch (freezerRace) {</span>
+<span class="nc" id="L199">            case 1 -&gt; freezerRace(projectileList, 1.6f, 5, 5, freezerColor);</span>
+<span class="nc" id="L200">            case 2 -&gt; freezerRace(projectileList, 1.2f, 5, 5, freezerColor);</span>
+<span class="nc" id="L201">            case 3 -&gt; freezerRace(projectileList, 1.2f, 5, 7, freezerColor);</span>
+<span class="nc" id="L202">            case 4 -&gt; freezerRace(projectileList, 0.8f, 5, 7, freezerColor);</span>
+<span class="nc" id="L203">            case 5 -&gt; freezerRace(projectileList, 0.8f, 7, 7, freezerColor);</span>
+<span class="nc" id="L204">            case 6 -&gt; freezerRace(projectileList, 0.5f, 7, 7, freezerColor);</span>
+        }
+
+        /**
+         * CIDER MECHANIC
+         * the code for the acidic ciders that shoot out at the
+         * direction of your cursor and poisons enemies
+         */
+<span class="nc bnc" id="L212" title="All 6 branches missed.">        switch (acidicCider) {</span>
+<span class="nc" id="L213">            case 1 -&gt; acidicCider(projectileList, 1.6f, 2, 0, 3);</span>
+<span class="nc" id="L214">            case 2 -&gt; acidicCider(projectileList, 1.6f, 2, 0, 5);</span>
+<span class="nc" id="L215">            case 3 -&gt; acidicCider(projectileList, 1.6f, 2, 1, 5);</span>
+<span class="nc" id="L216">            case 4 -&gt; acidicCider(projectileList, 1.2f, 2, 1, 5);</span>
+<span class="nc" id="L217">            case 5 -&gt; acidicCider(projectileList, 1.2f, 2, 2, 5);</span>
+        }
+
+        /**
+         * CIDER MECHANIC
+         * the code for the champagne that shoots out high-speed corks
+         * at the nearest enemy and has a chance to critical strike
+         */
+<span class="nc bnc" id="L225" title="All 6 branches missed.">        switch (pressureChampagne) {</span>
+<span class="nc" id="L226">            case 1 -&gt; pressureChampagne(enemyList, weaponList, projectileList, 4, 20, 0);</span>
+<span class="nc" id="L227">            case 2 -&gt; pressureChampagne(enemyList, weaponList, projectileList,  4, 30, 0);</span>
+<span class="nc" id="L228">            case 3 -&gt; pressureChampagne(enemyList, weaponList, projectileList,4, 30, 5);</span>
+<span class="nc" id="L229">            case 4 -&gt; pressureChampagne(enemyList, weaponList, projectileList, 3, 30, 5);</span>
+<span class="nc" id="L230">            case 5 -&gt; pressureChampagne(enemyList, weaponList, projectileList, 3, 40, 5);</span>
+        }
+
+        /**
+         * Particles for the rainbow shoes
+         */
+<span class="nc bnc" id="L236" title="All 2 branches missed.">        if (rainbowShoes &gt; 10) {</span>
+<span class="nc bnc" id="L237" title="All 2 branches missed.">            if (TimeUtils.millis() - lastRainbow &gt; 20) {</span>
+<span class="nc" id="L238">                Texture texture = new Texture(&quot;assets/particles/breezer1.png&quot;);</span>
+<span class="nc" id="L239">                Particle.TRAIL1(2, x + (width / 2) - 2, y, particleList, 2, 8, 8, texture, false);</span>
+<span class="nc" id="L240">                lastRainbow = TimeUtils.millis();</span>
+<span class="nc" id="L241">            }</span>
+        }
+<span class="nc bnc" id="L243" title="All 2 branches missed.">        else if (rainbowShoes &gt; 0) {</span>
+<span class="nc bnc" id="L244" title="All 2 branches missed.">            if (TimeUtils.millis() - lastRainbow &gt; 100) {</span>
+<span class="nc" id="L245">                Texture texture = new Texture(&quot;assets/particles/breezer1.png&quot;);</span>
+<span class="nc" id="L246">                Particle.TRAIL1(2, x + (width / 2) - 2, y, particleList, 2, 8, 8, texture, false);</span>
+<span class="nc" id="L247">                lastRainbow = TimeUtils.millis();</span>
+            }
+        }
+<span class="nc" id="L250">    }</span>
+
+
+
+
+    /**
+     * This method sets the different animations into texture regions and saves them as animations
+     */
+    private void setAnimations(){
+<span class="fc" id="L259">        Array&lt;TextureRegion&gt; frames = new Array&lt;TextureRegion&gt;();</span>
+<span class="fc bfc" id="L260" title="All 2 branches covered.">        for(int i = 1; i &lt;4; i++){ //walk down</span>
+<span class="fc" id="L261">            frames.add(new TextureRegion(getTexture(), i*250, 0, 250, 250));</span>
+        }
+<span class="fc" id="L263">        playerRunDown = new Animation&lt;TextureRegion&gt;(0.1f, frames);</span>
+<span class="fc" id="L264">        frames.clear();</span>
+<span class="fc bfc" id="L265" title="All 2 branches covered.">        for(int i = 1; i &lt; 4; i++){ //walk  up</span>
+<span class="fc" id="L266">            frames.add(new TextureRegion(getTexture(), i*250, 250, 250,250));</span>
+        }
+<span class="fc" id="L268">        playerRunUp = new Animation&lt;TextureRegion&gt;(0.1f, frames);</span>
+<span class="fc" id="L269">        frames.clear();</span>
+<span class="fc bfc" id="L270" title="All 2 branches covered.">        for(int i = 0; i &lt; 3; i++){ //walk left</span>
+<span class="fc" id="L271">            frames.add(new TextureRegion(getTexture(), i*250, 2*250, 250,250));</span>
+        }
+<span class="fc" id="L273">        playerRunLeft = new Animation&lt;TextureRegion&gt;(0.1f, frames);</span>
+<span class="fc" id="L274">        frames.clear();</span>
+        //run right
+<span class="fc" id="L276">        frames.add(new TextureRegion(getTexture(), 3*250, 2*250, 250,250));</span>
+<span class="fc bfc" id="L277" title="All 2 branches covered.">        for(int i = 0; i &lt; 2; i++){</span>
+<span class="fc" id="L278">            frames.add(new TextureRegion(getTexture(), i*250, 3*250, 250,250));</span>
+<span class="fc" id="L279">            System.out.println(width + height);</span>
+        }
+<span class="fc" id="L281">        playerRunRight = new Animation&lt;TextureRegion&gt;(0.1f, frames);</span>
+<span class="fc" id="L282">        frames.clear();</span>
+<span class="fc" id="L283">    }</span>
+
+
+    /**
+     * Checks the input from the user and changes the state of the player and throws bottles
+     * @param dt delatatime
+     * @param projectileList list with Projectiles
+     */
+    private void checkUserInput(float dt, ArrayList&lt;Projectile&gt; projectileList) {
+<span class="nc" id="L292">        setRegion(getFrame(dt));</span>
+
+<span class="nc" id="L294">        currentState = playerController.movePlayer(hitbox, currentState, this);</span>
+<span class="nc" id="L295">        playerController.throwBottle(mouse, projectileList, this);</span>
+<span class="nc" id="L296">    }</span>
+
+
+    /**
+     * gets the player controller
+     * @return playerController
+     */
+    public IController getPlayerController(){
+<span class="nc" id="L304">        return this.playerController;</span>
+    }
+
+
+    /**
+     * selects the correct textureRegion depending on the state
+     * changes the statetimer depending on the state
+     * sets the prevState variable to the current state, since this will be the new previous state
+     *
+     * @param dt deltatime
+     * @return textureRegion of the given direction
+     */
+    public TextureRegion getFrame(float dt) {
+<span class="fc" id="L317">        currentState = getState();</span>
+<span class="pc bpc" id="L318" title="3 of 5 branches missed.">        TextureRegion region = switch (currentState) {</span>
+<span class="nc" id="L319">            case RUNNINGRIGHT -&gt; playerRunRight.getKeyFrame(stateTimer, true);</span>
+<span class="fc" id="L320">            case RUNNINGDOWN -&gt; playerRunDown.getKeyFrame(stateTimer, true);</span>
+<span class="nc" id="L321">            case RUNNINGLEFT -&gt; playerRunLeft.getKeyFrame(stateTimer, true);</span>
+<span class="nc" id="L322">            case RUNNINGUP -&gt; playerRunUp.getKeyFrame(stateTimer, true);</span>
+<span class="fc" id="L323">            default -&gt; playerStand;</span>
+        };
+
+<span class="fc bfc" id="L326" title="All 2 branches covered.">        stateTimer = currentState == prevState ? stateTimer + dt: 0; //if the state changes the timer needs to restart</span>
+<span class="fc" id="L327">        prevState = currentState;</span>
+<span class="fc" id="L328">        return region;</span>
+    }
+
+
+    @Override
+    public void damage(float damage, ArrayList&lt;Particle&gt; particleList) {
+<span class="pc bpc" id="L334" title="1 of 2 branches missed.">        if (TimeUtils.millis() - lastDamaged &gt; 300) {</span>
+<span class="fc" id="L335">            HP -= damage;</span>
+<span class="fc" id="L336">            lastDamaged = TimeUtils.millis();</span>
+<span class="pc bpc" id="L337" title="2 of 4 branches missed.">            if (hurtSound!=null &amp;&amp; isAlive) hurtSound.play(); //for testing constructor</span>
+        }
+
+<span class="fc" id="L340">    }</span>
+
+
+    /**
+     * levels up the player when they have gained a set xp value.
+     * sets the isleveling to true so the game shows the leveling screen
+     * subtracts the xp down to the right value
+     * adds a level to the player
+     * sets the new XpGoal value
+     * Playes leveling sound.
+     */
+    public void levelUp() {
+<span class="nc bnc" id="L352" title="All 2 branches missed.">        if (xp &gt;= xpGoal) {</span>
+<span class="nc" id="L353">            setLeveling(true);</span>
+<span class="nc" id="L354">            xp = xp - xpGoal;</span>
+<span class="nc" id="L355">            level +=1;</span>
+<span class="nc" id="L356">            xpGoal = (int) (xpGoal * 1.2);</span>
+<span class="nc" id="L357">            levelUpSound.play(0.5f);</span>
+        }
+<span class="nc" id="L359">    }</span>
+
+    /**
+     * Calculates the closest enemy to the player
+     */
+    public DefaultEnemy closestEnemy(ArrayList&lt;DefaultEnemy&gt; enemyList) {
+
+<span class="nc" id="L366">        DefaultEnemy closest = null;</span>
+<span class="nc" id="L367">        float previousDistance = 99999999999f;</span>
+<span class="nc bnc" id="L368" title="All 2 branches missed.">        for (DefaultEnemy enemy : enemyList) {</span>
+<span class="nc bnc" id="L369" title="All 2 branches missed.">            if (enemy.isAlive) {</span>
+<span class="nc" id="L370">            float distanceX = Math.abs(hitbox.x - enemy.hitbox.x);</span>
+<span class="nc" id="L371">            float distanceY = Math.abs(hitbox.y - enemy.hitbox.y);</span>
+<span class="nc" id="L372">            float distance = distanceX + distanceY;</span>
+<span class="nc" id="L373">            System.out.println(distance);</span>
+<span class="nc bnc" id="L374" title="All 2 branches missed.">            if (distance &lt; previousDistance) {</span>
+<span class="nc" id="L375">                previousDistance = distance;</span>
+<span class="nc" id="L376">                closest = enemy;</span>
+<span class="nc" id="L377">                System.out.println(&quot;SUC&quot;);</span>
+            }
+            }
+<span class="nc" id="L380">        }</span>
+<span class="nc" id="L381">        return closest;</span>
+    }
+
+    public void pressureChampagne(ArrayList&lt;DefaultEnemy&gt; enemyList, ArrayList&lt;Weapon&gt; weaponList, ArrayList&lt;Projectile&gt; projectileList, int cooldown,
+                                  int damage, int chance) {
+<span class="nc" id="L386">        DefaultEnemy closestEnemy = closestEnemy(enemyList);</span>
+<span class="nc bnc" id="L387" title="All 2 branches missed.">        if (closestEnemy != null) {</span>
+<span class="nc bnc" id="L388" title="All 2 branches missed.">            if (TimeUtils.millis() - lastChampagne &gt; 1000f * cooldown) {</span>
+<span class="nc" id="L389">                Projectile.createChampagne(closestEnemy.x, closestEnemy.y, this, projectileList, damage, 4, weaponList, chance);</span>
+<span class="nc" id="L390">                lastChampagne = TimeUtils.millis();</span>
+            }
+        }
+<span class="nc" id="L393">    }</span>
+
+    public void acidicCider(ArrayList&lt;Projectile&gt; projectileList, float cooldown,
+                            int damage, int amount, int poisonDuration) {
+<span class="nc bnc" id="L397" title="All 2 branches missed.">        if (TimeUtils.millis() - lastCider &gt; 1000 * cooldown) {</span>
+<span class="nc" id="L398">            Projectile.createCiderCan(mouse.x, mouse.y, this, projectileList, poisonDuration, damage, amount);</span>
+<span class="nc" id="L399">            lastCider = TimeUtils.millis();</span>
+        }
+<span class="nc" id="L401">    }</span>
+
+    public void freezerRace(ArrayList&lt;Projectile&gt; projectileList, float cooldown,
+                            int damage, int poolDuration, int color) {
+<span class="nc bnc" id="L405" title="All 2 branches missed.">        if (TimeUtils.millis() - lastFreezer &gt; 1000 * cooldown) {</span>
+<span class="nc" id="L406">            Projectile.createFreezer(this, projectileList, color, poolDuration);</span>
+<span class="nc" id="L407">            lastFreezer = TimeUtils.millis();</span>
+        }
+<span class="nc" id="L409">    }</span>
+
+
+
+
+
+
+    /**
+     * gets the currentstate the player is in
+     * This is used for the animation
+     * @return currentState of the player
+     */
+    public State getState() {
+<span class="fc" id="L422">        return this.currentState;</span>
+    }
+
+
+    /**
+     * sets the currentState variable to the given value
+     * @param state value
+     */
+    public void setState(State state) {
+<span class="fc" id="L431">        this.currentState = state;</span>
+<span class="fc" id="L432">    }</span>
+
+        /**
+         * gets the texture of the player
+         * @return texture of player
+         */
+    public Texture getTexture(){
+<span class="fc" id="L439">        return this.player;</span>
+    }
+
+
+    /**
+     * Adds xp to the player
+     * @param amount of xp added
+     */
+    public void addXp(int amount) {
+<span class="fc" id="L448">            xp += amount;</span>
+<span class="fc" id="L449">    }</span>
+
+
+    public int getXp() {
+<span class="fc" id="L453">            return xp;</span>
+    }
+
+
+    /**
+     * sets the value of the shotgun variable.
+     * the int value refers to which level of the powerup the player has achieved.
+     * @param shotgun
+     */
+    public void setShotgun(int shotgun) {
+<span class="fc" id="L463">        this.shotgun = shotgun;</span>
+<span class="fc" id="L464">    }</span>
+
+
+    public int getShotgun() {
+<span class="fc" id="L468">        return shotgun;</span>
+    }
+
+
+    public int getFreezerRace() {
+<span class="fc" id="L473">        return freezerRace;</span>
+    }
+
+
+    /**
+     * sets the value of the freezerRace variable.
+     * the int value refers to which level of the powerup the player has achieved.
+     * @param freezerRace
+     */
+    public void setFreezerRace(int freezerRace) {
+<span class="fc" id="L483">        this.freezerRace = freezerRace;</span>
+<span class="fc" id="L484">    }</span>
+
+
+    public int getRainbowShoes() {
+<span class="fc" id="L488">        return rainbowShoes;</span>
+    }
+
+
+    /**
+     * sets the value of the rainbowShoes variable.
+     * the int value refers to which level of the powerup the player has achieved.
+     * @param rainbowShoes the int variable
+     */
+    public void setRainbowShoes(int rainbowShoes) {
+<span class="fc" id="L498">        this.rainbowShoes = rainbowShoes;</span>
+<span class="fc" id="L499">    }</span>
+
+
+    /**
+     * gets set xp goal the player has to reach
+     * @return xp goal for player
+     */
+    public int getXpGoal() {
+<span class="nc" id="L507">        return xpGoal;</span>
+    }
+
+
+    /**
+     * @return value of isLeveling variable that tells the game if the player is leveling up
+     * if it returns true the player is in the leveling up stage and the level up menu should pop out.
+     */
+    public boolean isLeveling() {
+<span class="nc" id="L516">        return isLeveling;</span>
+    }
+
+
+    public void setLeveling(boolean leveling) {
+<span class="nc" id="L521">        isLeveling = leveling;</span>
+<span class="nc" id="L522">    }</span>
+
+
+    public int getAcidicCider() {
+<span class="fc" id="L526">        return acidicCider;</span>
+    }
+
+
+    public void setAcidicCider(int acidicCider) {
+<span class="fc" id="L531">        this.acidicCider = acidicCider;</span>
+<span class="fc" id="L532">    }</span>
+
+
+    public int getLevel() {
+<span class="nc" id="L536">        return level;</span>
+    }
+
+    public int getPressureChampagne() {
+<span class="fc" id="L540">        return pressureChampagne;</span>
+    }
+
+    public void setPressureChampagne(int pressureChampagne) {
+<span class="fc" id="L544">        this.pressureChampagne = pressureChampagne;</span>
+<span class="fc" id="L545">    }</span>
+
+    public Sound getDeathSound() {
+<span class="nc" id="L548">        return deathSound;</span>
+    }
+
+    public void setDeathSound(Sound deathSound) {
+<span class="nc" id="L552">        this.deathSound = deathSound;</span>
+<span class="nc" id="L553">    }</span>
+}
+
+
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

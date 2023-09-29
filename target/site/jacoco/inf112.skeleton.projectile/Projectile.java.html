@@ -1,0 +1,474 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Projectile.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">hyttetur</a> &gt; <a href="index.source.html" class="el_package">inf112.skeleton.projectile</a> &gt; <span class="el_source">Projectile.java</span></div><h1>Projectile.java</h1><pre class="source lang-java linenums">package inf112.skeleton.projectile;
+
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.audio.Sound;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.utils.TimeUtils;
+import inf112.skeleton.player.Entity;
+import java.util.ArrayList;
+import java.util.Random;
+
+
+public class Projectile {
+
+
+    private String name;
+    private float damage;
+    private Effect effect;
+
+    private AreaOfEffect areaOfEffect;
+    private double speed;
+    private float distanceX;
+    private float distanceY;
+    private double angle;
+    private double xSpeed;
+    private double ySpeed;
+    private float x;
+    private float y;
+    private int width;
+    private int height;
+    private int rotation;
+    private Texture texture;
+    private Sprite sprite;
+    protected Rectangle hitbox;
+    private final Entity owner;
+    public boolean isAlive;
+    protected Sound throwSound;
+    protected Sound hitSound;
+
+    protected long lastParticle;
+
+
+    public Projectile(String name, Texture texture, float x, float y, int width, int height, double speed, float targetX, float
+<span class="fc" id="L46">            targetY, Entity owner, float damage, Sound throwSound, Sound hitSound) {</span>
+<span class="fc" id="L47">        this.name = name;</span>
+<span class="fc" id="L48">        this.isAlive = true;</span>
+<span class="fc" id="L49">        this.owner = owner;</span>
+<span class="fc" id="L50">        this.x = x;</span>
+<span class="fc" id="L51">        this.y = y;</span>
+<span class="fc" id="L52">        this.width = width;</span>
+<span class="fc" id="L53">        this.height = height;</span>
+<span class="fc" id="L54">        this.speed = speed;</span>
+<span class="fc" id="L55">        this.distanceX = targetX - x;</span>
+<span class="fc" id="L56">        this.distanceY = targetY - y;</span>
+<span class="fc" id="L57">        this.angle = Math.atan2(distanceY, distanceX);</span>
+<span class="fc" id="L58">        this.xSpeed = speed * Math.cos(angle);</span>
+<span class="fc" id="L59">        this.ySpeed = speed * Math.sin(angle);</span>
+<span class="fc" id="L60">        this.texture = texture;</span>
+<span class="fc" id="L61">        this.hitbox = new Rectangle(x, y, width, height);</span>
+
+<span class="fc" id="L63">        this.damage = damage;</span>
+<span class="fc" id="L64">        this.rotation = 0;</span>
+<span class="fc" id="L65">        this.sprite = new Sprite(texture);</span>
+
+<span class="fc" id="L67">        this.throwSound = throwSound;</span>
+<span class="fc" id="L68">        this.hitSound = hitSound;</span>
+<span class="fc" id="L69">    }</span>
+
+
+    /*
+    Updates the x and y value of the current projectile
+     */
+    public void update(ArrayList&lt;Particle&gt; particleList) {
+<span class="nc" id="L76">        x += xSpeed * 70 * Gdx.graphics.getDeltaTime();</span>
+<span class="nc" id="L77">        y += ySpeed * 70 * Gdx.graphics.getDeltaTime();</span>
+<span class="nc" id="L78">        hitbox.x = x + 1.7f;</span>
+<span class="nc" id="L79">        hitbox.y = y;</span>
+<span class="nc" id="L80">        hitbox.width = width - 3.5f;</span>
+<span class="nc bnc" id="L81" title="All 2 branches missed.">        if (name.equals(&quot;cider_can&quot;)) {</span>
+<span class="nc bnc" id="L82" title="All 2 branches missed.">            if (TimeUtils.millis() - lastParticle &gt; 250) {</span>
+<span class="nc" id="L83">                Texture texture = new Texture(&quot;assets/particles/poison1.png&quot;);</span>
+<span class="nc" id="L84">                Particle.TRAIL1(1, getHitbox().x + (width / 2f), getHitbox().y + (height / 2f), particleList, 20,</span>
+                            8, 8, texture, true);
+<span class="nc" id="L86">                lastParticle = TimeUtils.millis();</span>
+            }
+        }
+<span class="nc bnc" id="L89" title="All 2 branches missed.">        if (name.equals(&quot;critical_cork&quot;)) {</span>
+<span class="nc bnc" id="L90" title="All 2 branches missed.">            if (TimeUtils.millis() - lastParticle &gt; 25) {</span>
+<span class="nc" id="L91">                Texture texture = new Texture(&quot;assets/particles/champagne1.png&quot;);</span>
+<span class="nc" id="L92">                Particle.TRAIL1(1, getHitbox().x + (width / 2f), getHitbox().y + (height / 2f), particleList, 20,</span>
+                        8, 8, texture, false);
+<span class="nc" id="L94">                lastParticle = TimeUtils.millis();</span>
+            }
+        }
+
+<span class="nc bnc" id="L98" title="All 2 branches missed.">        if (areaOfEffect != null) {</span>
+<span class="nc" id="L99">            areaOfEffect.setX(x);</span>
+<span class="nc" id="L100">            areaOfEffect.setY(y);</span>
+        }
+<span class="nc" id="L102">    }</span>
+
+
+    /*BEER BOTTLE
+    Makes a new beer projectile at the players location
+     */
+    public static void createBeerBottle(float mouseX, float mouseY, Entity player, ArrayList&lt;Projectile&gt; projectileList) {
+<span class="nc" id="L109">        Texture texture = new Texture(&quot;assets/projectiles/beer.png&quot;);</span>
+<span class="nc" id="L110">        Sound tSound = Gdx.audio.newSound(Gdx.files.internal(&quot;assets/sounds/beer_throw.ogg&quot;));</span>
+<span class="nc" id="L111">        Sound hSound = Gdx.audio.newSound(Gdx.files.internal(&quot;assets/sounds/beer_hit.ogg&quot;));</span>
+
+<span class="nc" id="L113">        Projectile beerBottle = new Projectile(&quot;beer_bottle&quot;, texture, player.getCenterX(),</span>
+<span class="nc" id="L114">                player.getCenterY(),</span>
+                12, 12, 0.8, mouseX, mouseY, player, 5, tSound, hSound);
+
+<span class="nc" id="L117">        beerBottle.throwSound.play(1.0f);</span>
+<span class="nc" id="L118">        player.setLastShotTime(TimeUtils.nanoTime());</span>
+<span class="nc" id="L119">        projectileList.add(beerBottle);</span>
+<span class="nc" id="L120">    }</span>
+
+
+    /**
+     * creates a beer can with the corresponding textures and sounds
+     * @param mouseX x value of the mouse
+     * @param mouseY y value of the mouse
+     * @param player which player / entity throws the beer can
+     * @param projectileList list of projectiles
+     * @param damage the amount of damahe the can makes
+     * @param amount the amount of beer cans to generate
+     */
+    public static void createBeerCan(float mouseX, float mouseY, Entity player, ArrayList&lt;Projectile&gt; projectileList, int damage, int amount) {
+<span class="nc" id="L133">        Texture texture = new Texture(&quot;assets/projectiles/beer_can.png&quot;);</span>
+<span class="nc" id="L134">        Sound tSound = Gdx.audio.newSound(Gdx.files.internal(&quot;assets/sounds/beer_throw2.ogg&quot;));</span>
+<span class="nc" id="L135">        Sound hSound = Gdx.audio.newSound(Gdx.files.internal(&quot;assets/sounds/beer_hit2.ogg&quot;));</span>
+<span class="nc" id="L136">        int deviation = 10;</span>
+<span class="nc bnc" id="L137" title="All 2 branches missed.">        for (int i = 0; i &lt; 3 + amount; i++) {</span>
+<span class="nc" id="L138">            deviation *= -1.5;</span>
+<span class="nc" id="L139">            Projectile beerCan = new Projectile(&quot;beer_can&quot;, texture, player.getCenterX(),</span>
+<span class="nc" id="L140">                    player.getCenterY(),</span>
+                    10, 10, 1, mouseX + deviation, mouseY + deviation, player, damage, tSound, hSound);
+
+
+<span class="nc" id="L144">            beerCan.throwSound.play(0.2f);</span>
+<span class="nc" id="L145">            projectileList.add(beerCan);</span>
+        }
+<span class="nc" id="L147">            player.setLastShotTime(TimeUtils.nanoTime());</span>
+<span class="nc" id="L148">    }</span>
+
+
+
+
+        public static void createFreezer(Entity player, ArrayList&lt;Projectile&gt; projectileList, int color, int poolDuration) {
+<span class="nc bnc" id="L154" title="All 5 branches missed.">            Texture texture = switch (color) {</span>
+<span class="nc" id="L155">                case 1 -&gt; new Texture(&quot;assets/projectiles/orange_freezer.png&quot;);</span>
+<span class="nc" id="L156">                case 2 -&gt; new Texture(&quot;assets/projectiles/strawberry_freezer.png&quot;);</span>
+<span class="nc" id="L157">                case 3 -&gt; new Texture(&quot;assets/projectiles/lime_freezer.png&quot;);</span>
+<span class="nc" id="L158">                case 4 -&gt; new Texture(&quot;assets/projectiles/blueberry_freezer.png&quot;);</span>
+<span class="nc" id="L159">                default -&gt; new Texture(&quot;assets/projectiles/orange_freezer.png&quot;);</span>
+            };
+<span class="nc" id="L161">            Sound tSound = Gdx.audio.newSound(Gdx.files.internal(&quot;assets/sounds/freezer_throw.ogg&quot;));</span>
+<span class="nc" id="L162">            Sound hSound = Gdx.audio.newSound(Gdx.files.internal(&quot;assets/sounds/freezer_hit.ogg&quot;));</span>
+
+<span class="nc" id="L164">            Random random = new Random();</span>
+<span class="nc" id="L165">            float randomCoordinate1 = random.nextFloat() * 200.0f - 100.0f;</span>
+<span class="nc" id="L166">            float randomCoordinate2 = random.nextFloat() * 200.0f - 100.0f;</span>
+<span class="nc" id="L167">            System.out.println(randomCoordinate1 + &quot; , &quot; + randomCoordinate2);</span>
+
+<span class="nc" id="L169">            Projectile freezer = new Projectile(&quot;freezer_bottle&quot;, texture, player.getCenterX(),</span>
+<span class="nc" id="L170">                    player.getCenterY(), 10, 10,</span>
+<span class="nc" id="L171">                    1.2, (int) player.getX() + (player.getWidth() / 2 - 5) + randomCoordinate1,</span>
+<span class="nc" id="L172">                    (int) player.getY() + (player.getHeight() / 2 - 7) + randomCoordinate2, player, 4,</span>
+                    tSound, hSound);
+<span class="nc" id="L174">        freezer.throwSound.play(1f);</span>
+
+<span class="nc" id="L176">        freezer.setAreaOfEffect(AreaOfEffect.FREEZER_POOL(10, freezer.x, freezer.y, poolDuration, color, freezer.owner));</span>
+<span class="nc" id="L177">        projectileList.add(freezer);</span>
+<span class="nc" id="L178">        System.out.println(freezer.getEffect());</span>
+
+<span class="nc" id="L180">        }</span>
+
+
+    /**
+     * creates a cider can for the entity to throw
+     * @param targetX X value of the target
+     * @param targetY Y value of the target
+     * @param player which player / entity that throws the projectile
+     * @param projectileList list of projectiles
+     * @param duration the duration of the effect from the projectile (cider can)
+     * @param damage amount of damage the can will deal
+     * @param amount of cider can to throw
+     */
+    public static void createCiderCan(float targetX, float targetY, Entity player, ArrayList&lt;Projectile&gt; projectileList, int duration, int damage, int amount) {
+<span class="nc" id="L194">        Texture texture = new Texture(&quot;assets/projectiles/cider_can.png&quot;);</span>
+<span class="nc" id="L195">        Sound tSound = Gdx.audio.newSound(Gdx.files.internal(&quot;assets/sounds/cider_throw.ogg&quot;));</span>
+<span class="nc" id="L196">        Sound hSound = Gdx.audio.newSound(Gdx.files.internal(&quot;assets/sounds/cider_hit.ogg&quot;));</span>
+<span class="nc" id="L197">        int deviation = 0;</span>
+<span class="nc bnc" id="L198" title="All 2 branches missed.">        for (int i = 0; i &lt; 1 + amount; i++) {</span>
+<span class="nc" id="L199">            Projectile ciderCan = new Projectile(&quot;cider_can&quot;, texture, player.getCenterX(),</span>
+<span class="nc" id="L200">                    player.getCenterY(),</span>
+                    10, 10, 1, targetX + deviation, targetY + deviation, player, 3, tSound, hSound);
+
+<span class="nc" id="L203">            ciderCan.throwSound.play(0.5f);</span>
+<span class="nc" id="L204">            ciderCan.setEffect(Effect.POISON(duration, damage));</span>
+<span class="nc" id="L205">            projectileList.add(ciderCan);</span>
+<span class="nc" id="L206">            deviation +=20;</span>
+        }
+<span class="nc" id="L208">    }</span>
+
+    public static void createChampagne(float targetX, float targetY, Entity player, ArrayList&lt;Projectile&gt; projectileList,
+                                       int damage, int speed, ArrayList&lt;Weapon&gt; weaponList, int chance) {
+<span class="nc" id="L212">        Texture champagneTexture = new Texture(&quot;assets/projectiles/champagne_bottle.png&quot;);</span>
+<span class="nc" id="L213">        Texture corkTexture = new Texture(&quot;assets/projectiles/champagne_cork.png&quot;);</span>
+<span class="nc" id="L214">        Sound tSound = Gdx.audio.newSound(Gdx.files.internal(&quot;assets/sounds/champagne_throw.ogg&quot;));</span>
+<span class="nc" id="L215">        Sound hSound = Gdx.audio.newSound(Gdx.files.internal(&quot;assets/sounds/champagne_hit.ogg&quot;));</span>
+
+<span class="nc" id="L217">        Random random = new Random();</span>
+
+<span class="nc" id="L219">        int criticalChance = random.nextInt(10 - chance);</span>
+
+
+<span class="nc" id="L222">        Projectile cork = new Projectile(&quot;cork&quot;, corkTexture, player.getCenterX(), player.getCenterY(), 14, 14, speed, targetX, targetY,</span>
+                player, damage, tSound, hSound);
+
+<span class="nc bnc" id="L225" title="All 2 branches missed.">        if (criticalChance == 4) {</span>
+<span class="nc" id="L226">            hSound = Gdx.audio.newSound(Gdx.files.internal(&quot;assets/sounds/champagne_crit.ogg&quot;));</span>
+<span class="nc" id="L227">            cork = new Projectile(&quot;critical_cork&quot;, corkTexture, player.getCenterX(), player.getCenterY(), 14, 14, speed, targetX, targetY,</span>
+                    player, damage * 2, tSound, hSound);
+
+
+        }
+
+<span class="nc" id="L233">        int rotation = (int)(cork.angle * (180 / Math.PI) + 270);</span>
+<span class="nc" id="L234">        Weapon champagne = new Weapon(new Sprite(champagneTexture), rotation, 12, 12, 1, player);</span>
+
+
+<span class="nc" id="L237">        cork.throwSound.play();</span>
+<span class="nc" id="L238">        projectileList.add(cork);</span>
+<span class="nc" id="L239">        weaponList.add(champagne);</span>
+
+<span class="nc" id="L241">    }</span>
+
+
+    /**
+     * render method for the projectile
+     * @param batch SpriteBatch
+     */
+    public void render(SpriteBatch batch) {
+<span class="nc" id="L249">        sprite.setOriginCenter();</span>
+<span class="nc" id="L250">        sprite.setPosition(x - 1, y);</span>
+<span class="nc" id="L251">        sprite.setSize(width + 1, height + 1);</span>
+<span class="nc" id="L252">        sprite.setOrigin(sprite.getOriginX(), sprite.getOriginY());</span>
+<span class="nc" id="L253">        sprite.setRotation(rotation += 1);</span>
+<span class="nc" id="L254">        sprite.draw(batch);</span>
+<span class="nc" id="L255">    }</span>
+
+
+    /**
+     * gets the speed of the projectile
+     * @return speed
+     */
+    public double getSpeed() {
+<span class="fc" id="L263">        return speed;</span>
+    }
+
+
+    /**
+     * sets the speed of the projectile by the given value
+     * @param speed value
+     */
+    public void setSpeed(int speed) {
+<span class="fc" id="L272">        this.speed = speed;</span>
+<span class="fc" id="L273">    }</span>
+
+
+    /**
+     * gets the angle the projectile has
+     * @return angle
+     */
+    public double getAngle() {
+<span class="fc" id="L281">        return angle;</span>
+    }
+
+
+    /**
+     * sets the angle of the projectile by the given value
+     * @param angle value
+     */
+    public void setAngle(double angle) {
+<span class="nc" id="L290">        this.angle = angle;</span>
+<span class="nc" id="L291">    }</span>
+
+
+    /**
+     * gets the X coordinate of the projectile
+     * @return X value
+     */
+    public float getX() {
+<span class="fc" id="L299">        return x;</span>
+    }
+
+
+    /**
+     * sets the X value by the given amount
+     * @param x value
+     */
+    public void setX(float x) {
+<span class="nc" id="L308">        this.x = x;</span>
+<span class="nc" id="L309">    }</span>
+
+
+    /**
+     * gets the Y coordinate of the projectile
+     * @return Y value
+     */
+    public float getY() {
+<span class="fc" id="L317">        return y;</span>
+    }
+
+
+    /**
+     * sets the Y value to the given value
+     * @param y value
+     */
+    public void setY(float y) {
+<span class="nc" id="L326">        this.y = y;</span>
+<span class="nc" id="L327">    }</span>
+
+
+    /**
+     * gets the width of the projectile
+     * @return width value
+     */
+    public int getWidth() {
+<span class="fc" id="L335">        return width;</span>
+    }
+
+
+    /**
+     * sets the width value by the given amount
+     * @param width value
+     */
+    public void setWidth(int width) {
+<span class="nc" id="L344">        this.width = width;</span>
+<span class="nc" id="L345">    }</span>
+
+
+    /**
+     * gets the height of the projectile
+     * @return height value
+     */
+    public int getHeight() {
+<span class="fc" id="L353">        return height;</span>
+    }
+
+
+    /**
+     * sets the height of the projectile by the given amount
+     * @param height value
+     */
+    public void setHeight(int height) {
+<span class="nc" id="L362">        this.height = height;</span>
+<span class="nc" id="L363">    }</span>
+
+
+    /**
+     * gets the texture of the projectile
+     * @return texture
+     */
+    public Texture getTexture() {
+<span class="fc" id="L371">        return texture;</span>
+    }
+
+
+    /**
+     * sets the texture to the given value
+     * @param texture value
+     */
+    public void setTexture(Texture texture) {
+<span class="fc" id="L380">        this.texture = texture;</span>
+<span class="fc" id="L381">    }</span>
+
+
+    /**
+     * gets the hitbox of the projectile
+     * @return hitbox
+     */
+    public Rectangle getHitbox() {
+<span class="fc" id="L389">        return hitbox;</span>
+    }
+
+
+    /**
+     * gets the owner
+     * @return owner
+     */
+    public Entity getOwner() {
+<span class="fc" id="L398">        return owner;</span>
+    }
+
+
+    /**
+     * gets the damage value of the projectile
+     * @return damage value
+     */
+    public float getDamage() {
+<span class="fc" id="L407">        return damage;</span>
+    }
+
+
+    /**
+     * gets the sound of the throw
+     * @return throwSound
+     */
+    public Sound getThrowSound() {
+<span class="fc" id="L416">        return throwSound;</span>
+    }
+
+
+    /**
+     * gets the sound the projectile makes on hit
+     * @return hitSound
+     */
+    public Sound getHitSound() {
+<span class="fc" id="L425">        return hitSound;</span>
+    }
+
+
+    /**
+     * gets the effect the projectile has
+     * @return effect
+     */
+    public Effect getEffect() {
+<span class="fc" id="L434">        return effect;</span>
+    }
+
+
+    /**
+     * sets the effect the projectile has to the given value
+     * @param effect
+     */
+    public void setEffect(Effect effect) {
+<span class="fc" id="L443">        this.effect = effect;</span>
+<span class="fc" id="L444">    }</span>
+
+    public AreaOfEffect getAreaOfEffect() {
+<span class="nc" id="L447">        return areaOfEffect;</span>
+    }
+
+    public void setAreaOfEffect(AreaOfEffect areaOfEffect) {
+<span class="nc" id="L451">        this.areaOfEffect = areaOfEffect;</span>
+<span class="nc" id="L452">    }</span>
+
+
+    /**
+     * method for testing purposes
+     * @return distanceX
+     */
+    public float getDistanceX(){
+<span class="fc" id="L460">        return this.distanceX;</span>
+    }
+
+
+    /**
+     * method for testing purposes
+     * @return distanceY
+     */
+    public float getDistanceY(){
+<span class="fc" id="L469">        return this.distanceY;</span>
+    }
+}
+
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>
